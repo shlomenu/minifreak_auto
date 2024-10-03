@@ -1,13 +1,25 @@
-from enum import Enum
+from enum import Enum, auto
 from typing import Union
 
 from pywinauto import Application, mouse
 import mido
 
-class Element(Enum):
-    # Controls
+# Based on experimental measurements on 4K screen
+def norm_coord(x, y):
+    """
+    Based on empirical measurements with 4K monitor.
+    Window location: (L4, T23, R1946, B1318)
+    Clickable area: (x, y)
+    returns: (x_norm, y_norm)
+    """ 
+    x_norm = (x - 4) / (1946 - 4)
+    y_norm = (y - 23) / (1318 - 23)
+    return (x_norm, y_norm)
+
+
+# Midi_*: values are control numbers
+class Midi_Sliders(Enum):
     mod_wheel = 1
-    hold = 64
     glide = 5
     tune_osc_1 = 70
     wave_osc_1 = 14
@@ -47,62 +59,85 @@ class Element(Enum):
     spice = 116
     macro_1 = 117
     macro_2 = 118
-    # Mouse-manipulated
-    note_on = 119
-    note_off = 120
-    open_tab_advanced = 121
-    open_tab_sequencer = 122
-    type_osc_1 = 123
-    type_osc_2 = 124
-    type_filter = 125
-    toggle_fx1 = 126
-    toggle_fx2 = 127
-    toggle_fx3 = 128
-    open_tab_fx1 = 129
-    open_tab_fx2 = 130
-    open_tab_fx3 = 131
-    type_fx = 132
-    menu_presets_fx = 133
-    menu_mode_voices = 134
-    menu_retrigger_lfo1 = 135
-    menu_retrigger_lfo2 = 136
-    clickthru_rate_type_lfo1 = 137
-    clickthru_rate_type_lfo2 = 138
-    menu_mode_cycenv = 139
-    menu_retrigger_env = 140
-    open_tab_settings_voices = 141
-    menu_glide_mode_settings_voices = 142
-    menu_allocation_settings_voices = 143
-    menu_note_steal_settings_voices = 144
-    open_tab_settings_cycenv = 145
-    toggle_tempo_sync_settings_cyc_cycenv = 146
-    menu_retrigger_settings_cyc_cycenv = 147
-    menu_stage_order_settings_cyc_cycenv = 148
-    clickthru_rise_curve_settings_cyc_cycenv = 149
-    clickthru_fall_curve_settings_cyc_cycenv = 150
-    menu_retrigger_settings_env_cycenv = 151
-    clickthru_rise_curve_settings_env_cycenv = 152
-    clickthru_fall_curve_settings_env_cycenv = 153
-    menu_mode_settings_cycenv = 154
-    close_tab_settings_cycenv = 155
-    close_tab_settings_voices = 156
-    open_tab_envelope_settings = 157
-    menu_attack_curve_settings_envelope = 158
-    menu_decay_curve_settings_envelope = 159
-    menu_release_curve_settings_envelope = 160
+
+class Midi_Buttons(Enum):
+    hold = 64
+
+# Clickable_*: values are (H, W) in [0, 1] X [0, 1]
+class Clickable_Buttons(Enum):
+    open_tab_advanced = norm_coord(1586, 102)
+    open_tab_sequencer = norm_coord(1716, 103)
+    open_tab_fx1 = norm_coord(1598, 200)
+    open_tab_fx2 = norm_coord(1718, 197)
+    open_tab_fx3 = norm_coord(1840, 198)
+    open_tab_settings_voices = norm_coord(524, 712)
+    open_tab_settings_cycenv = norm_coord(1427, 712)
+    open_tab_settings_envelope = norm_coord(1882, 713)
+    open_tab_settings_wheels = norm_coord(165, 948)
+    open_tab_settings_macros_matrix = norm_coord(1103, 893)
+    open_tab_lfo_shaper = norm_coord(1470, 897)
+    open_tab_lfo1_lfo_shaper = norm_coord(410, 955)
+    open_tab_lfo2_lfo_shaper = norm_coord(549, 953)
+    open_tab_chord = norm_coord(83, 543)
+    open_tab_scale = norm_coord(243, 541)
+    close_tab_settings_voices = norm_coord(523, 587)
+    close_tab_settings_cycenv = norm_coord(1427, 585)
+    close_tab_settings_envelope = norm_coord(1882, 586)
+    close_tab_settings_wheels = norm_coord(163, 1241)
+    toggle_fx1 = norm_coord(1556, 199)
+    toggle_fx2 = norm_coord(1677, 199)
+    toggle_fx3 = norm_coord(1799, 199)
+    toggle_tempo_sync_settings_run_cycenv = norm_coord(1411, 617)
+    toggle_tempo_sync_settings_loop_cycenv = norm_coord(1412, 612)
+    toggle_vibrato_settings_wheels = norm_coord(239, 1005)
+    toggle_legato_settings_mono_voices = norm_coord(510, 689)
+    toggle_legato_settings_uni_voices = norm_coord(510, 636)
+    clickthru_rate_type_lfo1 = norm_coord(771, 710)
+    clickthru_rate_type_lfo2 = norm_coord(1034, 710)
+    clickthru_rise_curve_settings_env_cycenv = norm_coord(1350, 665)
+    clickthru_fall_curve_settings_env_cycenv = norm_coord(1353, 701)
+    open_menu_type_osc_1 = norm_coord(476, 200)
+    open_menu_type_osc_2 = norm_coord(1005, 200)
+    open_menu_type_filter = norm_coord(1395, 198)
+    open_menu_type_fx = norm_coord(1524, 241)
+    open_menu_presets_fx = norm_coord(1526, 429)
+    open_menu_mode_voices = norm_coord(421, 711)
+    open_menu_retrigger_lfo1 = norm_coord(689, 711)
+    open_menu_retrigger_lfo2 = norm_coord(943, 712)
+    open_menu_mode_cycenv = norm_coord(1193, 712)
+    open_menu_retrigger_env = norm_coord(1606, 711)
+    open_menu_glide_mode_settings_mono_voices = norm_coord(478, 639)
+    open_menu_glide_mode_settings_uni_voices = norm_coord(479, 616)
+    open_menu_uni_mode_settings_uni_voices = norm_coord(478, 662)
+    open_menu_glide_mode_settings_polypara_voices = norm_coord(481, 627)
+    open_menu_allocation_settings_polypara_voices = norm_coord(480, 664)
+    open_menu_note_steal_settings_polypara_voices = norm_coord(474, 700)
+    open_menu_mode_settings_voices = norm_coord(461, 586)
+    open_menu_retrigger_settings_env_cycenv = norm_coord(1351, 626)
+    open_menu_stage_order_settings_run_cycenv = norm_coord(1350, 646)
+    open_menu_retrigger_settings_loop_cycenv = norm_coord(1352, 637)
+    open_menu_stage_order_settings_loop_cycenv = norm_coord(1346, 659)
+    open_menu_mode_settings_cycenv = norm_coord(1327, 586)
+    open_menu_attack_curve_settings_envelope = norm_coord(1631, 619)
+    open_menu_decay_curve_settings_envelope = norm_coord(1625, 647)
+    open_menu_release_curve_settings_envelope = norm_coord(1626, 678)
+    open_menu_retrigger_settings_env = norm_coord(1653, 586)
+
+
+
+
+
+class Clickable_Sliders(Enum):
+    slider_rise_curve_settings_run_cycenv = 149
+    slider_fall_curve_settings_run_cycenv = 150
     slider_vel_vca_settings_envelope = 161
     slider_vel_vcf_settings_envelope = 162
     slider_vel_env_settings_envelope = 163
     slider_vel_time_settings_envelope = 164
-    close_tab_settings_envelope = 165
-    open_tab_settings_wheels = 166
-    toggle_vibrato_settings_wheels = 167
     slider_vibrato_rate_settings_wheels = 168
     slider_vibrato_depth_settings_wheels = 169
     slider_bend_range_settings_wheels = 170
-    close_tab_settings_wheels = 171
-    open_tab_settings_macros_matrix = 172
-    
+
 
     
 
@@ -145,19 +180,16 @@ class MiniFreak:
                 msg = mido.Message(elt.name, **kwargs)
             self._outport.send(msg)
 
-    def note_on(self, note, velocity):
-        self._send(Element.note_on, note=note, velocity=velocity)
+    def note(self, note, velocity, release=False):
+        self._send(
+            Element.note_off if release else Element.note_on, 
+            note=note, 
+            velocity=velocity)
 
-    def note_off(self, note, velocity):
-        self._send(Element.note_off, note=note, velocity=velocity)
+    def hold(self, release=False):
+        self._send(Element.hold, value=(0 if release else 127))
 
-    def hold_on(self):
-        self._send(Element.hold, value=127)
-
-    def hold_off(self):
-        self._send(Element.hold, value=0)
-
-    def set_control(self, elt: Union[Element, str], value):
+    def set(self, elt: Union[Element, str], value):
         if isinstance(elt, str):
             elt = Element[elt]
         if isinstance(elt, Element) and \
@@ -165,6 +197,8 @@ class MiniFreak:
             self._send(elt, value=value)
         else:
             raise ValueError(f"invalid input: {elt}")
+    
+    
 
 
 """
@@ -218,7 +252,7 @@ BUTTON MAPPING LOG FOR MOUSE MANIPULATION:
 
 
 (1524, 241)
-`FX3 Type`
+`FX Type`
 
 
 (1526, 429)
@@ -257,24 +291,60 @@ BUTTON MAPPING LOG FOR MOUSE MANIPULATION:
 `Voices Settings Menu`
 
 
+(461, 586)
+ Voice Settings > Mode
+
+
+(478, 639)
+ `Voice Mono Settings > Glide Mode Menu`
+
+
+(510, 689)
+ `Voice Mono Settings > Legato on/off`
+
+
+(479, 616)
+ `Voice Uni Settings > Glide Mode Menu`
+
+
+(510, 636)
+ `Voice Uni Settings > Legato on/off`
+
+
+(478, 662)
+ `Voice Uni Settings > Uni Mode`
+
+
+(476, 688)
+ `Voice Uni Settings > Uni Count`
+
+
+(479, 712)
+ `Voice Uni Settings > Uni Spread`
+
+ 
+(479, 713)
+ `Matrix Routing Slot Assignment > Voices Uni Settings > Uni Spread`
+
+ 
+(210, 1047)
+ `Matrix Routing Slot Assignment > Wheel Settings > Vibrato Rate`
+
+
 (481, 627)
-`Voices Settings Menu > Glide Mode`
+`Voices Settings Poly/Para Menu > Glide Mode`
 
 
 (480, 664)
-`Voices Settings Menu > Allocation`
+`Voices Settings Poly/Para Menu > Allocation`
 
 
 (474, 700)
-`Voices Settings Menu > Note Steal`
+`Voices Settings Poly/Para Menu > Note Steal`
 
 
 (1427, 712)
 `CycEnv Settings Menu`
-
-
-(1410, 616)
-`CycEnv Settings Menu > Tempo Sync on/off`
 
 
 (1351, 626)
@@ -289,20 +359,40 @@ BUTTON MAPPING LOG FOR MOUSE MANIPULATION:
  `CycEnv Env Settings Tab > Fall Curve`
 
 
+(1411, 617)
+ CycEnv Run Settings > Tempo Sync
+
+
+(1350, 646)
+ CycEnv Run Settings > Stage Order
+
+
+(1349, 680)
+ CycEnv Run Settings > Rise Curve
+
+
+(1348, 707)
+ CycEnv Run Settings > Fall Curve
+
+
+(1412, 612)
+ CycEnv Loop Settings > Tempo Sync
+
+
 (1352, 637)
-`CycEnv Cyclical Settings Menu > Retrig`
+`CycEnv Loop Settings Menu > Retrig`
 
 
 (1346, 659)
-`CycEnv Cyclical Settings Menu > Stage Order`
+`CycEnv Loop Settings Menu > Stage Order`
 
 
 (1347, 686)
-`CycEnv Cyclical Settings Menu > Rise Curve`
+`CycEnv Loop Settings Menu > Rise Curve`
 
 
 (1346, 715)
-`CycEnv Cyclical Settings Menu > Fall Curve`
+`CycEnv Loop Settings Menu > Fall Curve`
 
 
 (1327, 586)
@@ -351,6 +441,10 @@ BUTTON MAPPING LOG FOR MOUSE MANIPULATION:
 
 (1882, 586)
 `Envelope Settings Menu > Vel > Menu Close`
+
+
+(1653, 586)
+ Envelope Settings Menu > Retrig Menu
 
 
 (165, 948)
