@@ -157,6 +157,10 @@ class routing_slot(Enum):
     Matrix_11 = auto()
     Matrix_12 = auto()
     Matrix_13 = auto()
+    seq_mod_src_1 = auto()
+    seq_mod_src_2 = auto()
+    seq_mod_src_3 = auto()
+    seq_mod_src_4 = auto()
 
 class oscillator_modes(Enum):
     Basic_Waves = auto()
@@ -326,9 +330,10 @@ class Options(Enum):
     typ_attack_curve = frozenset(attack_curve_types)
     mde_seq_prog = frozenset(arpeggiator_progression_modes)
     mde_seq_oct = frozenset(arpeggiator_octave_modes)
-    asn_routing_slot = frozenset(routing_assignments)
+    asn_routing_slot_adv = frozenset(routing_assignments)
     btn_selected_unselected = Enum('button', names='selected unselected')
-    mde_routing = frozenset(routing_slot)
+    mde_routing_adv = frozenset(set(routing_slot) - set((routing_slot.seq_mod_src_1, routing_slot.seq_mod_src_2, routing_slot.seq_mod_src_3, routing_slot.seq_mod_src_4)))
+    mde_routing_seq = frozenset((routing_slot.seq_mod_src_1, routing_slot.seq_mod_src_2, routing_slot.seq_mod_src_3, routing_slot.seq_mod_src_4))
     typ_osc_1 = frozenset(set(oscillator_modes) - set((oscillator_modes.paraphony,)))
     typ_osc_2 = frozenset(oscillator_modes)
     typ_filter = frozenset(filter_types)
