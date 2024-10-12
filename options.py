@@ -14,20 +14,20 @@ class chord_scale_tabs(Enum):
     Scale = auto()
 
 class voices_panel(Enum):
-    controls = auto()
     settings = auto()
+    controls = auto()
 
 class cycenv_panel(Enum):
-    controls = auto()
     settings = auto()
+    controls = auto()
 
 class env_panel(Enum):
-    controls = auto()
     settings = auto()
+    controls = auto()
 
 class wheels_panel(Enum):
-    controls = auto()
     settings = auto()
+    controls = auto()
 
 class secondary_tabs(Enum):
     Macro__slash__Matrix = auto()
@@ -123,9 +123,15 @@ class routing_assignments(Enum):
     cutoff_filter = auto()
     reso_filter = auto()
     env_amt_filter = auto()
-    time_fx = auto()
-    intensity_fx = auto()
-    amount_fx = auto()
+    time_fx_1 = auto()
+    intensity_fx_1 = auto()
+    amount_fx_1 = auto()
+    time_fx_2 = auto()
+    intensity_fx_2 = auto()
+    amount_fx_2 = auto()
+    time_fx_3 = auto()
+    intensity_fx_3 = auto()
+    amount_fx_3 = auto()
     glide = auto()
     rate_lfo1 = auto()
     rate_lfo2 = auto()
@@ -206,10 +212,10 @@ class lfo_shapes(Enum):
     flat = auto()
 
 class scroll_positions(Enum):
-    lowest = auto()
-    lower = auto()
-    higher = auto()
     highest = auto()
+    higher = auto()
+    lower = auto()
+    lowest = auto()
 
 class n_bars(Enum):
     _1_Bar = auto()
@@ -293,9 +299,9 @@ class Options(Enum):
     primary_advanced = frozenset((primary_tabs.Advanced,))
     primary_sequencer = frozenset((primary_tabs.Sequencer,))
     tab_fx = frozenset(fx_tabs)
-    fx_1_2 = frozenset((fx_tabs.FX_1, fx_tabs.FX_2))
-    fx_2_3 = frozenset((fx_tabs.FX_2, fx_tabs.FX_3))
-    fx_1_3 = frozenset((fx_tabs.FX_1, fx_tabs.FX_3))
+    fx_1 = frozenset((fx_tabs.FX_1,))
+    fx_2 = frozenset((fx_tabs.FX_2,))
+    fx_3 = frozenset((fx_tabs.FX_3,))
     tab_chord_scale = frozenset(chord_scale_tabs)
     chord_tab = frozenset(chord_scale_tabs.Chord)
     scale_tab = frozenset(chord_scale_tabs.Scale)
