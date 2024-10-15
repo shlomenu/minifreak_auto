@@ -13,19 +13,7 @@ class chord_scale_tabs(Enum):
     Chord = auto()
     Scale = auto()
 
-class voices_panel(Enum):
-    settings = auto()
-    controls = auto()
-
-class cycenv_panel(Enum):
-    settings = auto()
-    controls = auto()
-
-class env_panel(Enum):
-    settings = auto()
-    controls = auto()
-
-class wheels_panel(Enum):
+class panel(Enum):
     settings = auto()
     controls = auto()
 
@@ -55,10 +43,6 @@ class attack_curve_types(Enum):
 class falling_curve_types(Enum):
     Default = auto()
     Percussive = auto()
-
-class toggle(Enum):
-    on = auto()
-    off = auto()
 
 class cycenv_modes(Enum):
     Env = auto()
@@ -105,9 +89,7 @@ class arpeggiator_octave_modes(Enum):
     Oct3 = auto()
     Oct4 = auto()
 
-class routing_assignments(Enum):
-    uni_spread = auto()
-    vibrato_rate = auto()
+class routing_assignments_always(Enum):
     type_osc_1 = auto()
     tune_osc_1 = auto()
     wave_osc_1 = auto()
@@ -123,15 +105,6 @@ class routing_assignments(Enum):
     cutoff_filter = auto()
     reso_filter = auto()
     env_amt_filter = auto()
-    time_fx_1 = auto()
-    intensity_fx_1 = auto()
-    amount_fx_1 = auto()
-    time_fx_2 = auto()
-    intensity_fx_2 = auto()
-    amount_fx_2 = auto()
-    time_fx_3 = auto()
-    intensity_fx_3 = auto()
-    amount_fx_3 = auto()
     glide = auto()
     rate_lfo1 = auto()
     rate_lfo2 = auto()
@@ -145,7 +118,28 @@ class routing_assignments(Enum):
     sustain_env = auto()
     release_env = auto()
 
-class routing_slot(Enum):
+class routing_assignments_tab_fx1(Enum):
+    time = auto()
+    intensity = auto()
+    amount = auto()
+
+class routing_assignments_tab_fx2(Enum):
+    time = auto()
+    intensity = auto()
+    amount = auto()
+
+class routing_assignments_tab_fx3(Enum):
+    time = auto()
+    intensity = auto()
+    amount = auto()
+
+class routing_assignments_stg_voices(Enum):
+    uni_spread = auto()
+
+class routing_assignments_stg_wheels(Enum):
+    vibrato_rate = auto()
+
+class routing_slot_adv(Enum):
     Macro_1_1 = auto()
     Macro_1_2 = auto()
     Macro_1_3 = auto()
@@ -163,12 +157,14 @@ class routing_slot(Enum):
     Matrix_11 = auto()
     Matrix_12 = auto()
     Matrix_13 = auto()
-    seq_mod_src_1 = auto()
-    seq_mod_src_2 = auto()
-    seq_mod_src_3 = auto()
-    seq_mod_src_4 = auto()
 
-class oscillator_modes(Enum):
+class routing_slot_seq(Enum):
+    mod_src_1 = auto()
+    mod_src_2 = auto()
+    mod_src_3 = auto()
+    mod_src_4 = auto()
+
+class osc_1_modes(Enum):
     Basic_Waves = auto()
     SuperWave = auto()
     Harmo = auto()
@@ -185,6 +181,8 @@ class oscillator_modes(Enum):
     Harm = auto()
     Audio_In = auto()
     Wavetable = auto()
+
+class osc_2_modes(osc_1_modes):
     paraphony = auto()
 
 class filter_types(Enum):
@@ -192,18 +190,33 @@ class filter_types(Enum):
     BP = auto()
     HP = auto()
 
-class fx_types(Enum):
-    Chorus = auto()
-    Phaser = auto()
-    Flanger = auto()
-    Reverb = auto()
-    Delay = auto()
-    Distortion = auto()
-    Bit_Crusher = auto()
-    _3_Bands_EQ = auto()
-    Peak_EQ = auto()
-    Multi_Comp = auto()
-    SuperUnison = auto()
+class fx_types_neither(Enum):
+    Chorus = 1
+    Phaser = 2
+    Flanger = 3
+    Distortion = 4
+    Bit_Crusher = 5
+    _3_Bands_EQ = 6
+    Peak_EQ = 7
+    Multi_Comp = 8
+    SuperUnison = 9
+
+class fx_types_reverb(Enum):
+    Reverb = 10
+
+class fx_types_delay(Enum):
+    Delay = 11
+
+class fx_types_if_reverb(fx_types_neither, fx_types_delay):
+    pass
+
+
+class fx_types_if_delay(fx_types_neither, fx_types_reverb):
+    pass
+
+
+class fx_types_both(fx_types_neither, fx_types_reverb, fx_types_delay):
+    pass
 
 class lfo_shapes(Enum):
     up = auto()
@@ -223,16 +236,23 @@ class n_bars(Enum):
     _3_Bar = auto()
     _4_Bar = auto()
 
-class lfo_retrigger_modes(Enum):
-    Free = auto()
+class cycenv_retrigger_modes(Enum):
     Poly_Kbd = auto()
     Mono_Kbd = auto()
     Legato_Kbd = auto()
+
+
+class lfo_retrigger_modes(cycenv_retrigger_modes):
+    Free = auto()
     One = auto()
-    LFO1 = auto()
-    LFO2 = auto()
     CycEnv = auto()
     Seq_Start = auto()
+
+class lfo1_retrigger_modes(lfo_retrigger_modes):
+    LFO2 = auto()
+
+class lfo2_retrigger_modes(lfo_retrigger_modes):
+    LFO1 = auto()
 
 class env_retrigger_modes(Enum):
     Env_Reset = auto()
@@ -294,81 +314,167 @@ class note_steal_modes(Enum):
     Lowest_Velo = auto()
     _None = auto()
 
+class effect_mode(Enum):
+    send = auto()
+    insert = auto()
+
+class chorus_presets(Enum):
+    Default = auto()
+    Lush = auto()
+    Dark = auto()
+    Shaded = auto()
+    Single = auto()
+
+class phaser_presets(Enum):
+    Default = auto()
+    Default_Sync = auto()
+    Space = auto()
+    Space_Sync = auto()
+    SnH = auto()
+    SnH_Sync = auto()
+
+class flanger_presets(Enum):
+    Default = auto()
+    Default_Sync = auto()
+    Silly = auto()
+    Silly_Sync = auto()
+
+class reverb_presets(Enum):
+    Default = auto()
+    Long = auto()
+    Hall = auto()
+    Echoes = auto()
+    Room = auto()
+    Dark_Room = auto()
+
+class delay_presets(Enum):
+    Digital = auto()
+    Digital_Sync = auto()
+    Stereo = auto()
+    Stereo_Sync = auto()
+    Ping__dash__Pong = auto()
+    Ping__dash__Pong_Sync = auto()
+    Mono = auto()
+    Mono_Sync = auto()
+    Filtered = auto()
+    Filtered_Sync = auto()
+    Filtered_Ping__dash__Pong = auto()
+    Filtered_P__dash__P_Sync = auto()
+
+class distortion_presets(Enum):
+    Classic = auto()
+    Soft_Clip = auto()
+    Germanium = auto()
+    Dual_Fold = auto()
+    Climb = auto()
+    Tape = auto()
+
+class _3_bands_eq_presets(Enum):
+    Default = auto()
+    Wide = auto()
+    Mid_1k = auto()
+
+class multi_comp_presets(Enum):
+    OPP = auto()
+    Bass_Ctrl = auto()
+    High_Ctrl = auto()
+    All_Up = auto()
+    Tighter = auto()
+
+class superunison_presets(Enum):
+    Classic = auto()
+    Ravey = auto()
+    Soli = auto()
+    Slow = auto()
+    Slow_Trig = auto()
+    Wide_Trig = auto()
+    Mono_Trig = auto()
+    Wavy = auto()
+
 class Options(Enum):
-    tab_primary = frozenset(primary_tabs)
-    primary_advanced = frozenset((primary_tabs.Advanced,))
-    primary_sequencer = frozenset((primary_tabs.Sequencer,))
-    tab_fx = frozenset(fx_tabs)
-    fx_1 = frozenset((fx_tabs.FX_1,))
-    fx_2 = frozenset((fx_tabs.FX_2,))
-    fx_3 = frozenset((fx_tabs.FX_3,))
-    tab_chord_scale = frozenset(chord_scale_tabs)
-    chord_tab = frozenset(chord_scale_tabs.Chord)
-    scale_tab = frozenset(chord_scale_tabs.Scale)
-    pnl_voices = frozenset(voices_panel)
-    stg_voices = frozenset((voices_panel.settings,))
-    pnl_cycenv = frozenset(cycenv_panel)
-    stg_cycenv = frozenset((cycenv_panel.settings,))
-    pnl_env = frozenset(env_panel)
-    stg_env = frozenset((env_panel.settings,))
-    pnl_wheels = frozenset(wheels_panel)
-    stg_wheels = frozenset((wheels_panel.settings,))
-    tab_secondary = frozenset(secondary_tabs)
-    secondary_macro_matrix = frozenset((secondary_tabs.Macro__slash__Matrix,))
-    secondary_shaper = frozenset((secondary_tabs.LFO_Shaper,))
-    tab_lfos = frozenset(lfo_tabs)
-    typ_lfo_rate = frozenset(lfo_rate_types)
-    typ_rise_curve = frozenset(rising_curve_types)
-    typ_falling_curve = frozenset(falling_curve_types)
-    mde_cycenv = frozenset(cycenv_modes)
-    env_mode = frozenset((cycenv_modes.Env,))
-    run_mode = frozenset((cycenv_modes.Run,))
-    loop_mode = frozenset((cycenv_modes.Loop,))
-    mde_voices = frozenset(voice_modes)
-    mono_mode = frozenset((voice_modes.Mono,))
-    uni_mode = frozenset((voice_modes.Unison,))
-    polypara_mode = frozenset((voice_modes.Poly, voice_modes.Para))
-    chd_octaves = frozenset(chord_octaves)
-    mde_seq_arp = frozenset(sequencer_arpeggiator_modes)
-    seq_arp_seq = frozenset((sequencer_arpeggiator_modes.Seq,))
-    seq_arp_arp = frozenset((sequencer_arpeggiator_modes.Arp,))
-    seq_arp_not_off = frozenset(set(sequencer_arpeggiator_modes) - set((sequencer_arpeggiator_modes.Off,)))
-    typ_attack_curve = frozenset(attack_curve_types)
-    mde_seq_prog = frozenset(arpeggiator_progression_modes)
-    mde_seq_oct = frozenset(arpeggiator_octave_modes)
-    asn_routing_slot_adv = frozenset(routing_assignments)
-    btn_selected_unselected = Enum('button', names='selected unselected')
-    mde_routing_adv = frozenset(set(routing_slot) - set((routing_slot.seq_mod_src_1, routing_slot.seq_mod_src_2, routing_slot.seq_mod_src_3, routing_slot.seq_mod_src_4)))
-    mde_routing_seq = frozenset((routing_slot.seq_mod_src_1, routing_slot.seq_mod_src_2, routing_slot.seq_mod_src_3, routing_slot.seq_mod_src_4))
-    typ_osc_1 = frozenset(set(oscillator_modes) - set((oscillator_modes.paraphony,)))
-    typ_osc_2 = frozenset(oscillator_modes)
-    typ_filter = frozenset(filter_types)
-    stg_fx = frozenset(
-        (t1, t2, t3) 
-        for t1 in fx_types 
-        for t2 in fx_types 
-        for t3 in fx_types 
-        if (
-            [t1, t2, t3].count(fx_types.Reverb) < 2 
-            and [t1, t2, t3].count(fx_types.Delay) < 2
-        )
-    )
-    typ_lfo_shape = frozenset(lfo_shapes)
-    scr_seq_note = frozenset(scroll_positions)
-    btn_trigger = Enum('button', names='trigger')
-    mde_n_bars = frozenset(n_bars)
-    mde_lfo1_retrigger = frozenset(set(lfo_retrigger_modes) - set((lfo_retrigger_modes.LFO1,)))
-    mde_lfo2_retrigger = frozenset(set(lfo_retrigger_modes) - set((lfo_retrigger_modes.LFO2,)))
-    mde_env_retrigger = frozenset(env_retrigger_modes)
-    mde_glide_voices = frozenset(glide_types)
-    mde_uni_voices = frozenset(uni_voice_modes)
-    mde_cycenv_retrigger = frozenset(set(lfo_retrigger_modes) - set((lfo_retrigger_modes.Free, lfo_retrigger_modes.One, lfo_retrigger_modes.CycEnv, lfo_retrigger_modes.Seq_Start)))
-    mde_stage_order = frozenset(stage_orders)
-    mde_name_scale = frozenset(notes)
-    mde_scale = frozenset(scale_modes)
-    mde_lfo_shaper_rate = frozenset(rate_lfo_shaper)
-    mde_allocation_voices = frozenset(voice_allocation_modes)
-    mde_note_steal_voices = frozenset(note_steal_modes)
-    typ_fx = frozenset(fx_types)
+    tab_primary = ("primary_tabs", frozenset(primary_tabs))
+    primary_advanced = ("primary_tabs", frozenset((primary_tabs.Advanced,)))
+    primary_sequencer = ("sequencer", frozenset((primary_tabs.Sequencer,)))
+    tab_fx = ("fx_tabs", frozenset(fx_tabs))
+    fx_1 = ("fx_tabs", frozenset((fx_tabs.FX_1,)))
+    fx_2 = ("fx_tabs", frozenset((fx_tabs.FX_2,)))
+    fx_3 = ("fx_tabs", frozenset((fx_tabs.FX_3,)))
+    tab_chord_scale = ("chord_scale_tabs", frozenset(chord_scale_tabs))
+    chord_tab = ("chord_scale_tabs", frozenset(chord_scale_tabs.Chord))
+    scale_tab = ("chord_scale_tabs", frozenset(chord_scale_tabs.Scale))
+    pnl_voices = ("voices_panel", frozenset(panel))
+    stg_voices = ("voices_panel", frozenset((panel.settings,)))
+    pnl_cycenv = ("cycenv_panel", frozenset(panel))
+    stg_cycenv = ("cycenv_panel", frozenset((panel.settings,)))
+    pnl_env = ("env_panel", frozenset(panel))
+    stg_env = ("env_panel", frozenset((panel.settings,)))
+    pnl_wheels = ("wheels_panel", frozenset(panel))
+    stg_wheels = ("wheels_panel", frozenset((panel.settings,)))
+    tab_secondary = ("secondary_tabs", frozenset(secondary_tabs))
+    secondary_macro_matrix = ("secondary_tabs", frozenset((secondary_tabs.Macro__slash__Matrix,)))
+    secondary_shaper = ("secondary_tabs", frozenset((secondary_tabs.LFO_Shaper,)))
+    tab_lfos = ("lfo_tabs", frozenset(lfo_tabs))
+    typ_lfo_rate = ("lfo_rate_types", frozenset(lfo_rate_types))
+    typ_rise_curve = ("rising_curve_types", frozenset(rising_curve_types))
+    typ_falling_curve = ("falling_curve_types", frozenset(falling_curve_types))
+    mde_cycenv = ("cycenv_modes", frozenset(cycenv_modes))
+    env_mode = ("cycenv_modes", frozenset((cycenv_modes.Env,)))
+    run_mode = ("cycenv_modes", frozenset((cycenv_modes.Run,)))
+    loop_mode = ("cycenv_modes", frozenset((cycenv_modes.Loop,)))
+    mde_voices = ("voice_modes", frozenset(voice_modes))
+    mono_mode = ("voice_modes", frozenset((voice_modes.Mono,)))
+    uni_mode = ("voice_modes", frozenset((voice_modes.Unison,)))
+    polypara_mode = ("voice_modes", frozenset((voice_modes.Poly, voice_modes.Para)))
+    mde_env_retrigger = ("retrigger_settings_env", frozenset(env_retrigger_modes))
+    chd_octaves = ("chord_octaves", frozenset(chord_octaves))
+    mde_seq_arp = ("sequencer_arpeggiator_modes", frozenset(sequencer_arpeggiator_modes))
+    seq_arp_seq = ("sequencer_arpeggiator_modes", frozenset((sequencer_arpeggiator_modes.Seq,)))
+    seq_arp_arp = ("sequencer_arpeggiator_modes", frozenset((sequencer_arpeggiator_modes.Arp,)))
+    seq_arp_not_off = ("sequencer_arpeggiator_modes", frozenset(set(sequencer_arpeggiator_modes) - set((sequencer_arpeggiator_modes.Off,))))
+    typ_attack_curve = ("attack_curve_types", frozenset(attack_curve_types))
+    mde_seq_prog = ("arpeggiator_progression_modes", frozenset(arpeggiator_progression_modes))
+    mde_seq_oct = ("arpeggiator_octave_modes", frozenset(arpeggiator_octave_modes))
+    mde_routing_adv = ("routing_slot", frozenset(routing_slot_adv))
+    mde_routing_seq = ("routing_slot", frozenset(routing_slot_seq))
+    typ_osc_1 = ("osc_1_modes", frozenset(osc_1_modes))
+    typ_osc_2 = ("osc_2_modes", frozenset(osc_2_modes))
+    typ_filter = ("filter_types", frozenset(filter_types))
+    typ_fx_1_chorus = ("fx1_type", frozenset((fx_types_neither.Chorus,)))
+    typ_fx_1_phaser = ("fx1_type", frozenset((fx_types_neither.Phaser,)))
+    typ_fx_1_flanger = ("fx1_type", frozenset((fx_types_neither.Flanger,)))
+    typ_fx_1_distortion = ("fx1_type", frozenset((fx_types_neither.Distortion,)))
+    typ_fx_1_bit_crusher = ("fx1_type", frozenset((fx_types_neither.Bit_Crusher,)))
+    typ_fx_1__3_bands_eq = ("fx1_type", frozenset((fx_types_neither._3_Bands_EQ,)))
+    typ_fx_1_peak_eq = ("fx1_type", frozenset((fx_types_neither.Peak_EQ,)))
+    typ_fx_1_multi_comp = ("fx1_type", frozenset((fx_types_neither.Multi_Comp,)))
+    typ_fx_1_superunison = ("fx1_type", frozenset((fx_types_neither.SuperUnison,)))
+    typ_fx_1_reverb = ("fx1_type", frozenset(fx_types_reverb))
+    typ_fx_1_delay = ("fx1_type", frozenset(fx_types_delay))
+    typ_fx_1_neither = ("fx1_type", frozenset(fx_types_neither))
+    typ_fx_2_chorus = ("fx2_type", frozenset((fx_types_neither.Chorus,)))
+    typ_fx_2_phaser = ("fx2_type", frozenset((fx_types_neither.Phaser,)))
+    typ_fx_2_flanger = ("fx2_type", frozenset((fx_types_neither.Flanger,)))
+    typ_fx_2_distortion = ("fx2_type", frozenset((fx_types_neither.Distortion,)))
+    typ_fx_2_bit_crusher = ("fx2_type", frozenset((fx_types_neither.Bit_Crusher,)))
+    typ_fx_2__3_bands_eq = ("fx2_type", frozenset((fx_types_neither._3_Bands_EQ,)))
+    typ_fx_2_peak_eq = ("fx2_type", frozenset((fx_types_neither.Peak_EQ,)))
+    typ_fx_2_multi_comp = ("fx2_type", frozenset((fx_types_neither.Multi_Comp,)))
+    typ_fx_2_superunison = ("fx2_type", frozenset((fx_types_neither.SuperUnison,)))
+    typ_fx_2_reverb = ("fx2_type", frozenset(fx_types_reverb))
+    typ_fx_2_delay = ("fx2_type", frozenset(fx_types_delay))
+    typ_fx_2_neither = ("fx2_type", frozenset(fx_types_neither))
+    typ_fx_3_chorus = ("fx3_type", frozenset((fx_types_neither.Chorus,)))
+    typ_fx_3_phaser = ("fx3_type", frozenset((fx_types_neither.Phaser,)))
+    typ_fx_3_flanger = ("fx3_type", frozenset((fx_types_neither.Flanger,)))
+    typ_fx_3_distortion = ("fx3_type", frozenset((fx_types_neither.Distortion,)))
+    typ_fx_3_bit_crusher = ("fx3_type", frozenset((fx_types_neither.Bit_Crusher,)))
+    typ_fx_3__3_bands_eq = ("fx3_type", frozenset((fx_types_neither._3_Bands_EQ,)))
+    typ_fx_3_peak_eq = ("fx3_type", frozenset((fx_types_neither.Peak_EQ,)))
+    typ_fx_3_multi_comp = ("fx3_type", frozenset((fx_types_neither.Multi_Comp,)))
+    typ_fx_3_superunison = ("fx3_type", frozenset((fx_types_neither.SuperUnison,)))
+    typ_fx_3_reverb = ("fx3_type", frozenset(fx_types_reverb))
+    typ_fx_3_delay = ("fx3_type", frozenset(fx_types_delay))
+    typ_fx_3_neither = ("fx3_type", frozenset(fx_types_neither))
+    typ_lfo_shape = ("lfo_shapes", frozenset(lfo_shapes))
     
     
