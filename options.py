@@ -414,7 +414,6 @@ class Options(Enum):
     secondary_macro_matrix = ("secondary_tabs", frozenset((secondary_tabs.Macro__slash__Matrix,)))
     secondary_shaper = ("secondary_tabs", frozenset((secondary_tabs.LFO_Shaper,)))
     tab_lfos = ("lfo_tabs", frozenset(lfo_tabs))
-    typ_lfo_rate = ("lfo_rate_types", frozenset(lfo_rate_types))
     typ_rise_curve = ("rising_curve_types", frozenset(rising_curve_types))
     typ_falling_curve = ("falling_curve_types", frozenset(falling_curve_types))
     mde_cycenv = ("cycenv_modes", frozenset(cycenv_modes))
