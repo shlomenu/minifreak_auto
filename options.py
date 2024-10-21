@@ -36,20 +36,20 @@ class rising_curve_types(Enum):
     Quick = auto()
     Linear = auto()
 
-class attack_curve_types(Enum):
+class attack_curve_type(Enum):
     Default = auto()
     Quick = auto()
 
-class falling_curve_types(Enum):
+class falling_curve_type(Enum):
     Default = auto()
     Percussive = auto()
 
-class cycenv_modes(Enum):
+class cycenv_mode(Enum):
     Env = auto()
     Run = auto()
     Loop = auto()
 
-class voice_modes(Enum):
+class voice_mode(Enum):
     Mono = auto()
     Unison = auto()
     Poly = auto()
@@ -164,7 +164,7 @@ class routing_slot_seq(Enum):
     mod_src_3 = auto()
     mod_src_4 = auto()
 
-class osc_1_modes(Enum):
+class osc_1_mode(Enum):
     Basic_Waves = auto()
     SuperWave = auto()
     Harmo = auto()
@@ -182,10 +182,10 @@ class osc_1_modes(Enum):
     Audio_In = auto()
     Wavetable = auto()
 
-class osc_2_modes(osc_1_modes):
+class osc_2_mode(osc_1_mode):
     paraphony = auto()
 
-class filter_types(Enum):
+class filter_type(Enum):
     LP = auto()
     BP = auto()
     HP = auto()
@@ -236,29 +236,29 @@ class n_bars(Enum):
     _3_Bar = auto()
     _4_Bar = auto()
 
-class cycenv_retrigger_modes(Enum):
+class cycenv_retrigger_mode(Enum):
     Poly_Kbd = auto()
     Mono_Kbd = auto()
     Legato_Kbd = auto()
 
 
-class lfo_retrigger_modes(cycenv_retrigger_modes):
+class lfo_retrigger_modes(cycenv_retrigger_mode):
     Free = auto()
     One = auto()
     CycEnv = auto()
     Seq_Start = auto()
 
-class lfo1_retrigger_modes(lfo_retrigger_modes):
+class lfo1_retrigger_mode(lfo_retrigger_modes):
     LFO2 = auto()
 
-class lfo2_retrigger_modes(lfo_retrigger_modes):
+class lfo2_retrigger_mode(lfo_retrigger_modes):
     LFO1 = auto()
 
-class env_retrigger_modes(Enum):
+class env_retrigger_mode(Enum):
     Env_Reset = auto()
     Env_Continue = auto()
 
-class glide_types(Enum):
+class glide_type(Enum):
     Time = auto()
     Time_Legato = auto()
     Rate = auto()
@@ -266,17 +266,17 @@ class glide_types(Enum):
     Sync = auto()
     Sync_Legato = auto()
 
-class uni_voice_modes(Enum):
+class uni_voice_mode(Enum):
     Unison = auto()
     Uni_Poly = auto()
     Uni_Para = auto()
 
-class stage_orders(Enum):
+class stage_order(Enum):
     Rise_Hold_Fall = auto()
     Rise_Fall_Hold = auto()
     Hold_Rise_Fall = auto()
 
-class notes(Enum):
+class chord_root_note(Enum):
     c = auto()
     c_sharp = auto()
     d = auto()
@@ -290,7 +290,7 @@ class notes(Enum):
     a_sharp = auto()
     b = auto()
 
-class scale_modes(Enum):
+class scale_mode(Enum):
     Global = auto()
     Major = auto()
     Minor = auto()
@@ -325,7 +325,7 @@ class chorus_presets(Enum):
     Shaded = auto()
     Single = auto()
 
-class phaser_presets(Enum):
+class phaser_preset(Enum):
     Default = auto()
     Default_Sync = auto()
     Space = auto()
@@ -333,7 +333,7 @@ class phaser_presets(Enum):
     SnH = auto()
     SnH_Sync = auto()
 
-class flanger_presets(Enum):
+class flanger_preset(Enum):
     Default = auto()
     Default_Sync = auto()
     Silly = auto()
@@ -361,7 +361,7 @@ class delay_presets(Enum):
     Filtered_Ping__dash__Pong = auto()
     Filtered_P__dash__P_Sync = auto()
 
-class distortion_presets(Enum):
+class distortion_preset(Enum):
     Classic = auto()
     Soft_Clip = auto()
     Germanium = auto()
@@ -369,19 +369,19 @@ class distortion_presets(Enum):
     Climb = auto()
     Tape = auto()
 
-class _3_bands_eq_presets(Enum):
+class _3_bands_eq_preset(Enum):
     Default = auto()
     Wide = auto()
     Mid_1k = auto()
 
-class multi_comp_presets(Enum):
+class multi_comp_preset(Enum):
     OPP = auto()
     Bass_Ctrl = auto()
     High_Ctrl = auto()
     All_Up = auto()
     Tighter = auto()
 
-class superunison_presets(Enum):
+class superunison_preset(Enum):
     Classic = auto()
     Ravey = auto()
     Soli = auto()
@@ -415,29 +415,29 @@ class Options(Enum):
     secondary_shaper = ("secondary_tabs", frozenset((secondary_tabs.LFO_Shaper,)))
     tab_lfos = ("lfo_tabs", frozenset(lfo_tabs))
     typ_rise_curve = ("rising_curve_types", frozenset(rising_curve_types))
-    typ_falling_curve = ("falling_curve_types", frozenset(falling_curve_types))
-    mde_cycenv = ("cycenv_modes", frozenset(cycenv_modes))
-    env_mode = ("cycenv_modes", frozenset((cycenv_modes.Env,)))
-    run_mode = ("cycenv_modes", frozenset((cycenv_modes.Run,)))
-    loop_mode = ("cycenv_modes", frozenset((cycenv_modes.Loop,)))
-    mde_voices = ("voice_modes", frozenset(voice_modes))
-    mono_mode = ("voice_modes", frozenset((voice_modes.Mono,)))
-    uni_mode = ("voice_modes", frozenset((voice_modes.Unison,)))
-    polypara_mode = ("voice_modes", frozenset((voice_modes.Poly, voice_modes.Para)))
-    mde_env_retrigger = ("retrigger_settings_env", frozenset(env_retrigger_modes))
+    typ_falling_curve = ("falling_curve_types", frozenset(falling_curve_type))
+    mde_cycenv = ("cycenv_modes", frozenset(cycenv_mode))
+    env_mode = ("cycenv_modes", frozenset((cycenv_mode.Env,)))
+    run_mode = ("cycenv_modes", frozenset((cycenv_mode.Run,)))
+    loop_mode = ("cycenv_modes", frozenset((cycenv_mode.Loop,)))
+    mde_voices = ("voice_modes", frozenset(voice_mode))
+    mono_mode = ("voice_modes", frozenset((voice_mode.Mono,)))
+    uni_mode = ("voice_modes", frozenset((voice_mode.Unison,)))
+    polypara_mode = ("voice_modes", frozenset((voice_mode.Poly, voice_mode.Para)))
+    mde_env_retrigger = ("retrigger_settings_env", frozenset(env_retrigger_mode))
     chd_octaves = ("chord_octaves", frozenset(chord_octaves))
     mde_seq_arp = ("sequencer_arpeggiator_modes", frozenset(sequencer_arpeggiator_modes))
     seq_arp_seq = ("sequencer_arpeggiator_modes", frozenset((sequencer_arpeggiator_modes.Seq,)))
     seq_arp_arp = ("sequencer_arpeggiator_modes", frozenset((sequencer_arpeggiator_modes.Arp,)))
     seq_arp_not_off = ("sequencer_arpeggiator_modes", frozenset(set(sequencer_arpeggiator_modes) - set((sequencer_arpeggiator_modes.Off,))))
-    typ_attack_curve = ("attack_curve_types", frozenset(attack_curve_types))
+    typ_attack_curve = ("attack_curve_types", frozenset(attack_curve_type))
     mde_seq_prog = ("arpeggiator_progression_modes", frozenset(arpeggiator_progression_modes))
     mde_seq_oct = ("arpeggiator_octave_modes", frozenset(arpeggiator_octave_modes))
     mde_routing_adv = ("routing_slot", frozenset(routing_slot_adv))
     mde_routing_seq = ("routing_slot", frozenset(routing_slot_seq))
-    typ_osc_1 = ("osc_1_modes", frozenset(osc_1_modes))
-    typ_osc_2 = ("osc_2_modes", frozenset(osc_2_modes))
-    typ_filter = ("filter_types", frozenset(filter_types))
+    typ_osc_1 = ("osc_1_modes", frozenset(osc_1_mode))
+    typ_osc_2 = ("osc_2_modes", frozenset(osc_2_mode))
+    typ_filter = ("filter_type", frozenset(filter_type))
     typ_fx_1_chorus = ("fx1_type", frozenset((fx_types_neither.Chorus,)))
     typ_fx_1_phaser = ("fx1_type", frozenset((fx_types_neither.Phaser,)))
     typ_fx_1_flanger = ("fx1_type", frozenset((fx_types_neither.Flanger,)))
