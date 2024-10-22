@@ -927,8 +927,8 @@ class MiniFreak:
             aff: Def_Afford, 
             selections: Union[Enum, List[Enum], None] = None, 
             points: Union[List[Tuple[Union[int, float], Union[int, float]]], Tuple[Union[int, float], Union[int, float]], None] = None,
-            require: List[Options] = [], 
-            branch: List[Options] = [],
+            require: Union[List[Options], List[List[Options]]] = [], 
+            branch: Union[List[Options], List[List[Options]]] = [],
             name: Optional[str] = None,
             _processed: bool = False,
     ):
@@ -936,16 +936,28 @@ class MiniFreak:
             name = selections.__name__
         elif selections is None and name is None:
             name = f"unnamed_{self.n_affordances}"
+
+        if selections is not None and not isinstance(selections, list):
+            selections = list(selections)
+        if points is not None and not _processed:
+            if isinstance(points[0], tuple):
+                points = self._norm(points[0], points[1])
+            else:
+                points = [self._norm(x, y) for (x, y) in points]
+        if require or branch:
+            if require and branch:
+                assert (
+                    (all(require, lambda r: isinstance(r, list)) and all(branch, lambda b: isinstance(b, list))) or
+                    (all(require, lambda r: isinstance(r, Options)) and all(branch, lambda b: isinstance(b, Options)))
+                ), "require and branch arguments must both have the same dimensionality (both lists or both lists of lists)"
+            
+
             
         if   aff is self.aff.click_select:
             if selections is None:
                 raise ValueError(f"_add_ui_action: {aff}: {name}: missing selections")
-            elif not isinstance(selections, list):
-                selections = list(selections)
             if points is None:
                 raise ValueError(f"_add_ui_action: {aff}: {name}: missing points")
-            elif not _processed:
-                points = [self._norm(x, y) for (x, y) in points]
             if len(selections) != len(points):
                 raise ValueError(f"_add_ui_action: {aff}: {name}: {selections}: {points}: unequal number of selections and points")
             if not _processed and not hasattr(self, f"_{aff.name}"):
@@ -971,8 +983,6 @@ class MiniFreak:
         elif aff is self.aff.click_toggle or aff is self.aff.click_hold_toggle or aff is self.aff.click_refresh or aff is self.aff.click_rel_slider:
             if points is None:
                 raise ValueError(f"_add_ui_action: {aff}: {name}: missing points")
-            elif not _processed:
-                points = self._norm(points[0], points[1])
             if not _processed and not hasattr(self, f"_{aff.name}"):
                 setattr(self, f"_{aff.name}", {})
             if branch is not None and len(branch) > 0:
@@ -999,12 +1009,8 @@ class MiniFreak:
         elif aff is self.aff.click_cycle or aff is self.aff.click_dropdown:
             if selections is None:
                 raise ValueError(f"_add_ui_action: {aff}: {name}: missing selections")
-            elif not isinstance(selections, list):
-                selections = list(selections)
             if points is None:
                 raise ValueError(f"_add_ui_action: {aff}: {name}: missing points")
-            elif not _processed:
-                points = self._norm(points[0], points[1])
             if not _processed and not hasattr(self, f"_{aff.name}"):
                 setattr(self, f"_{aff.name}", {})
             if branch is not None and len(branch) > 0:
