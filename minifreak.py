@@ -1,4 +1,5 @@
 from collections import defaultdict
+import copy
 from enum import Enum
 import itertools
 from typing import List, Optional, Tuple, Union
@@ -906,6 +907,8 @@ class MiniFreak:
         #                     None)
         
     def _add_programmatic_affordance(self, afford, cc: Enum, **kwargs):
+        if not hasattr(self, f"_{afford.name}"):
+            setattr(self, f"_{afford.name}", {})
         if   afford is self.aff.midi_disc_toggle:
             self._midi_disc_toggle[cc.name] = kwargs
         elif afford is self.aff.midi_slider:
@@ -927,8 +930,7 @@ class MiniFreak:
             aff: Def_Afford, 
             selections: Union[Enum, List[Enum], None] = None, 
             points: Union[List[Tuple[Union[int, float], Union[int, float]]], Tuple[Union[int, float], Union[int, float]], None] = None,
-            require: Union[List[Options], List[List[Options]]] = [], 
-            branch: Union[List[Options], List[List[Options]]] = [],
+            require: Union[Tuple[List[Options], List[Options]], List[Options], List[List[Options]], List[Tuple[List[Options], List[Options]]]] = [], 
             name: Optional[str] = None,
             _processed: bool = False,
     ):
@@ -941,103 +943,61 @@ class MiniFreak:
             selections = list(selections)
         if points is not None and not _processed:
             if isinstance(points[0], tuple):
-                points = self._norm(points[0], points[1])
+                points = [self._norm(points[0], points[1])]
             else:
                 points = [self._norm(x, y) for (x, y) in points]
-        if require or branch:
-            if require and branch:
-                assert (
-                    (all(require, lambda r: isinstance(r, list)) and all(branch, lambda b: isinstance(b, list))) or
-                    (all(require, lambda r: isinstance(r, Options)) and all(branch, lambda b: isinstance(b, Options)))
-                ), "require and branch arguments must both have the same dimensionality (both lists or both lists of lists)"
-            
+        if not _processed:
+            if isinstance(require, tuple) or (require and isinstance(require[0], Options)):
+                require = [require]
+        
+        if selections is None and (
+            aff is self.aff.click_select or \
+            aff is self.aff.click_cycle or \
+            aff is self.aff.click_dropdown
+        ):
+            raise ValueError(f"_add_ui_action: {aff}: {name}: missing selections")
+        if points is None:
+            raise ValueError(f"_add_ui_action: {aff}: {name}: missing points")
+        elif aff is not self.aff.click_select and len(points) > 1:
+            raise ValueError(f"_add_ui_action: {aff}: multiple clickpoints not supported for this type of affordance")
+        if aff is self.aff.click_select and len(selections) != len(points):
+            raise ValueError(f"_add_ui_action: {aff}: {name}: {selections}: {points}: unequal number of selections and points")
+        
+        if not _processed and not hasattr(self, f"_{aff.name}"):
+            setattr(self, f"_{aff.name}", defaultdict(lambda: defaultdict(dict)))
 
+        for i, r in enumerate(require):
+            if isinstance(r, tuple):
+                required, branch = r
+            else:
+                required, branch = r, None
+            if branch is not None and branch:
+                sub_name, leaves = branch[0].value
+                new_required = required + [(sub_name, frozenset((leaf,)))] 
+                r_new = (new_required, branch[1:]) if len(branch) > 1 else new_required
+                for leaf in leaves:
+                    self._add_ui_affordance(
+                        aff,
+                        name=f"{name}_{leaf.name}",
+                        selections=selections,
+                        points=points,
+                        require=(require[:i] + [r_new] + require[i+1:]),
+                        _processed=True,
+                    )
+                return
             
+        records = getattr(self, f"_{aff.name}") 
+
         if   aff is self.aff.click_select:
-            if selections is None:
-                raise ValueError(f"_add_ui_action: {aff}: {name}: missing selections")
-            if points is None:
-                raise ValueError(f"_add_ui_action: {aff}: {name}: missing points")
-            if len(selections) != len(points):
-                raise ValueError(f"_add_ui_action: {aff}: {name}: {selections}: {points}: unequal number of selections and points")
-            if not _processed and not hasattr(self, f"_{aff.name}"):
-                setattr(self, f"_{aff.name}", defaultdict(lambda: {"selections": [], "points": [], "require": [], "branch": []}))
-            if branch is not None and len(branch) > 0:
-                sub_name, leaves = branch[0].value
-                for leaf in leaves:
-                    self._add_ui_affordance(
-                        aff,
-                        selections,
-                        f"{name}_{leaf.name}",
-                        points,
-                        require + [(sub_name, frozenset((leaf,)))],
-                        branch=branch[1:],
-                        _processed=True,
-                    )
-                return
-            records = getattr(self, f"_{aff.name}") 
-            records[name]["selections"].extend(selections)
-            records[name]["points"].extend(points)
-            records[name]["require"].extend(require for _ in range(len(points)))
-            self.n_affordances += 1
+            for selection, point in zip(selections, points):
+                records[name][selection] = {"point": point, "required": require}
         elif aff is self.aff.click_toggle or aff is self.aff.click_hold_toggle or aff is self.aff.click_refresh or aff is self.aff.click_rel_slider:
-            if points is None:
-                raise ValueError(f"_add_ui_action: {aff}: {name}: missing points")
-            if not _processed and not hasattr(self, f"_{aff.name}"):
-                setattr(self, f"_{aff.name}", {})
-            if branch is not None and len(branch) > 0:
-                sub_name, leaves = branch[0].value
-                for leaf in leaves:
-                    self._add_ui_affordance(
-                        aff,
-                        f"{name}_{leaf.name}",
-                        points,
-                        require + [(sub_name, frozenset((leaf,)))],
-                        branch=branch[1:],
-                        _processed=True,
-                    )
-                return
-            records = getattr(self, f"_{aff.name}")
-            if name not in records:
-                records[name] = {
-                    "point": points,
-                    "require": require,
-                }
-                self.n_affordances += 1
-            else:
-                raise ValueError(f"_add_ui_action: {aff}: {name}: duplicate call")
+            records[name][point[0]] = require
         elif aff is self.aff.click_cycle or aff is self.aff.click_dropdown:
-            if selections is None:
-                raise ValueError(f"_add_ui_action: {aff}: {name}: missing selections")
-            if points is None:
-                raise ValueError(f"_add_ui_action: {aff}: {name}: missing points")
-            if not _processed and not hasattr(self, f"_{aff.name}"):
-                setattr(self, f"_{aff.name}", {})
-            if branch is not None and len(branch) > 0:
-                sub_name, leaves = branch[0].value
-                for leaf in leaves:
-                    self._add_ui_affordance(
-                        aff,
-                        selections,
-                        f"{name}_{leaf.name}",
-                        points,
-                        require + [(sub_name, frozenset((leaf,)))],
-                        branch=branch[1:],
-                        _processed=True,
-                    )
-                return
-            records = getattr(self, f"_{aff.name}")
-            if name not in records:
-                if aff is self.aff.click_dropdown:
-                    require = [require for _ in range(len(selections))]
-                records[name] = {
-                    "selections": selections,
-                    "point": points,
-                    "require": require,
-                }
-                self.n_affordances += 1
-            else:
-                raise ValueError(f"_add_ui_action: {aff}: {name}: duplicate call")
+            for selection in selections:
+                records[name][selection] = {"point": points[0], "required": require}
+        
+        self.n_affordances += 1
 
     def _finalize_affordances(self):
         affordance_types, self._spec, self._state, self._states = {}, {}, {}, {}
@@ -1047,6 +1007,7 @@ class MiniFreak:
             affordance_types[affordance_type] = Enum(affordance_type, tuple(records.keys()))
             for afford in affordance_types[affordance_type]:
                 elt = records[afford.name]
+                self._spec[afford] = elt
                 if   aff is self.aff.midi_disc_toggle or aff is self.aff.midi_cont_toggle:
                     self._state[afford] = Toggle_State.Off
                     self._states[afford] = tuple(Toggle_State)
@@ -1054,24 +1015,23 @@ class MiniFreak:
                     self._state[afford] = 0
                     self._states[afford] = tuple(range(128))
                 elif aff is self.aff.click_select:
-                    self._state[afford] = elt["selections"][0]
-                    self._states[afford] = tuple(elt["selections"])
-                    del self._spec[afford]["selections"]
+                    self._states[afford] = tuple(elt.keys())
+                    self._state[afford] = self._states[afford][0]
                 elif aff is self.aff.click_toggle:
                     self._state[afford] = Toggle_State.Off
                     self._states[afford] = tuple(Toggle_State)
                 elif aff is self.aff.click_hold_toggle:
                     self._state[afford] = Hold_Toggle_State.Released
                     self._states[afford] = tuple(Hold_Toggle_State)
-                elif aff is self.aff.click_refresh:
+                elif aff is self.aff.click_refresh: # TODO: revisit
                     self._state[afford] = None
                     self._states[afford] = (None,)
                 elif aff is self.aff.click_cycle or aff is self.aff.click_dropdown:
-                    self._state[afford] = elt["selections"][0]
-                    self._states[afford] = tuple(elt["selections"])
-                    del self._spec[afford]["selections"]
-                elif aff is self.aff.click_rel_slider:
-                    pass
+                    self._states[afford] = tuple(elt.keys())
+                    self._state[afford] = self._states[afford][0]
+                elif aff is self.aff.click_rel_slider: # TODO: revisit
+                    self._state[afford] = None
+                    self._states[afford] = (None,)
 
         self._affordance_types = Enum('Affordance_Types', affordance_types)
         self._affordances = tuple((a for at in self._affordance_types for a in at))
@@ -1091,7 +1051,8 @@ class MiniFreak:
         return False    
 
     def do(self, affordance, state, **kwargs):
-        spec, states = self._spec[affordance], self._states[affordance]
+        states = self._states[affordance]
+        spec = copy.deepcopy(self._spec[affordance])
         if state not in states:
             raise ValueError(f"do: {affordance}: {state}: requested state not among valid states: {states}")
         choice, curr = states.index(state), states.index(self._state[affordance])
@@ -1113,31 +1074,34 @@ class MiniFreak:
         if at is self._affordance_types.Midi_Slider:
             self._send("control_change", value=state, **spec)
         if at is self._affordance_types.Click_Select:
-            if self._satisfied(spec["require"][choice]):
-                self._click(spec["points"][choice])
+            if self._satisfied(spec[state]["required"]):
+                self._click(spec[state]["point"])
         if at is self._affordance_types.Click_Toggle:
-            if self._satisfied(spec["require"]):
-                self._click(spec["point"])
+            for point, required in spec.items():                    
+                if self._satisfied(required):
+                    self._click(point)
         if at is self._affordance_types.Click_Hold_Toggle:
-            if self._satisfied(spec["require"]):
-                if state is Hold_Toggle_State.Released:
-                    self._hold_click(spec["point"])
-                elif state is Hold_Toggle_State.Held:
-                    self._release_click(spec["point"])
+            for point, required in spec.items():                    
+                if self._satisfied(required):
+                    if state is Hold_Toggle_State.Released:
+                        self._hold_click(point)
+                    elif state is Hold_Toggle_State.Held:
+                        self._release_click(point)
         if at is self._affordance_types.Click_Refresh:
-            if self._satisfied(spec["require"]):
-                self._click(spec["point"])
+            for point, required in spec.items():                    
+                if self._satisfied(required):
+                    self._click(point)
         if at is self._affordance_types.Click_Cycle:
-            if state._satisfied(spec["require"]):
+            if self._satisfied(spec[state]["required"]):
                 if choice < curr:
                     for _ in itertools.chain(states[curr:], states[:choice]):
-                        self._click(spec["point"])
+                        self._click(spec[state]["point"])
                 else:
                     for _ in states[curr:choice]:
-                        self._click(spec["point"])
+                        self._click(spec[state]["point"])
         if at is self._affordance_types.Click_Dropdown:
-            if self._satisfied(spec["require"][choice]):
-                self._click(spec["point"])
+            if self._satisfied(spec[state]["required"]):
+                self._click(spec[state]["point"])
                 for _ in range(choice + 1):
                     self._kbd_down()
                 self._kbd_enter()
