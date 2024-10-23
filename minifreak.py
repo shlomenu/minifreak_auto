@@ -4,8 +4,9 @@ from enum import Enum
 import itertools
 from typing import List, Optional, Tuple, Union
 
-from pywinauto import Application, mouse
+from pywinauto import Application, mouse, keyboard
 import mido
+import pywinauto
 
 from options import *
 import options
@@ -153,7 +154,7 @@ class MiniFreak:
                                     name=name, 
                                     selections=panel, 
                                     points=points, 
-                                    require=[Options.primary_advanced])
+                                    required=[Options.primary_advanced])
         self._add_ui_affordance(self.aff.click_select, 
                                 secondary_tabs, 
                                 [(1103, 893 ), (1470, 897 )], 
@@ -195,19 +196,15 @@ class MiniFreak:
                                 name="routing_slot", 
                                 selections=routing_slot_seq,
                                 points=[(141 , 1042), (137 , 1095), (139 , 1148), (138 , 1206)],
-                                require=[Options.primary_sequencer])
+                                required=[Options.primary_sequencer])
         def rte_asgn_req(last=None): 
             return [
-                [Options.primary_advanced, Options.secondary_macro_matrix], 
-                [Options.primary_sequencer],
+                ([Options.primary_advanced, Options.secondary_macro_matrix], [Options.mde_routing_adv]), 
+                ([Options.primary_sequencer], [Options.mde_routing_seq]),
             ] if last is None else [
-                [Options.primary_advanced, Options.secondary_macro_matrix, last], 
-                [Options.primary_sequencer, last],
+                ([Options.primary_advanced, Options.secondary_macro_matrix, last], [Options.mde_routing_adv]), 
+                ([Options.primary_sequencer, last], [Options.mde_routing_seq]),
             ]
-        rte_asgn_br = [
-            [Options.mde_routing_adv], 
-            [Options.mde_routing_seq]
-        ]
         self._add_ui_affordance(self.aff.click_select, 
                                 name="routing_assignments", 
                                 selections=routing_assignments_always,
@@ -222,44 +219,38 @@ class MiniFreak:
                                     (1272, 777 ), (1376, 777 ), (1540, 774 ),
                                     (1637, 777 ), (1735, 776 ), (1837, 776 )
                                 ],
-                                require=rte_asgn_req(), 
-                                branch=rte_asgn_br)
+                                required=rte_asgn_req())
         self._add_ui_affordance(self.aff.click_select,
                                 name="routing_assignments", 
                                 selections=routing_assignments_tab_fx1,
                                 points=[(1729, 432 ), (1827, 431 ), (1640, 428 )],
-                                require=rte_asgn_req(Options.fx_1), 
-                                branch=rte_asgn_br)
+                                required=rte_asgn_req(Options.fx_1))
         self._add_ui_affordance(self.aff.click_select,
                                 name="routing_assignments", 
                                 selections=routing_assignments_tab_fx2,
                                 points=[(1729, 432 ), (1827, 431 ), (1640, 428 )],
-                                require=rte_asgn_req(Options.fx_2), 
-                                branch=rte_asgn_br)
+                                required=rte_asgn_req(Options.fx_2))
         self._add_ui_affordance(self.aff.click_select,
                                 name="routing_assignments", 
                                 selections=routing_assignments_tab_fx3,
                                 points=[(1729, 432 ), (1827, 431 ), (470 , 776 )],
-                                require=rte_asgn_req(Options.fx_3), 
-                                branch=rte_asgn_br)
+                                required=rte_asgn_req(Options.fx_3))
         self._add_ui_affordance(self.aff.click_select,
                                 name="routing_assignments", 
                                 selections=routing_assignments_stg_voices,
                                 points=[(479 , 713 )],
-                                require=rte_asgn_req(Options.stg_voices), 
-                                branch=rte_asgn_br)
+                                required=rte_asgn_req(Options.stg_voices))
         self._add_ui_affordance(self.aff.click_select,
                                 name="routing_assignments", 
                                 selections=routing_assignments_stg_wheels,
                                 points=[(210 , 1047)],
-                                require=rte_asgn_req(Options.stg_wheels), 
-                                branch=rte_asgn_br)
+                                required=rte_asgn_req(Options.stg_wheels))
         for i in range(1, 4):
             self._add_ui_affordance(self.aff.click_select,
                                     name=f"send_insert_delay_fx_{i}", 
                                     selections=effect_mode,
                                     points=[(1558, 369 ), (1505, 366 )],
-                                    require=[
+                                    required=[
                                         Options.primary_advanced, 
                                         Options[f"fx_{i}"],
                                         Options[f"typ_fx_{i}_delay"],
@@ -268,7 +259,7 @@ class MiniFreak:
                                     name=f"send_insert_reverb_fx_{i}", 
                                     selections=effect_mode,
                                     points=[(1558, 369 ), (1505, 366 )],
-                                    require=[
+                                    required=[
                                         Options.primary_advanced,
                                         Options[f"fx_{i}"],
                                         Options[f"typ_fx_{i}_reverb"],
@@ -276,8 +267,7 @@ class MiniFreak:
         self._add_ui_affordance(self.aff.click_select,
                                 lfo_shapes,
                                 [(401 , 1162), (492 , 1164), (398 , 1204), (496 , 1207)],
-                                [Options.primary_advanced, Options.secondary_shaper], 
-                                [Options.tab_lfos])
+                                [([Options.primary_advanced, Options.secondary_shaper], [Options.tab_lfos])])
         self._add_ui_affordance(self.aff.click_select, 
                                 scroll_positions,
                                 [(1879, 923 ), (1880, 737 ), (1880, 605 ), (1880, 472 )],
@@ -289,219 +279,219 @@ class MiniFreak:
         self._add_ui_affordance(self.aff.click_toggle, 
                                 name="fx1", 
                                 points=(1556, 199 ), 
-                                require=[Options.primary_advanced])
+                                required=[Options.primary_advanced])
         self._add_ui_affordance(self.aff.click_toggle, 
                                 name="fx2",
                                 points=(1677, 199 ),
-                                require=[Options.primary_advanced])
+                                required=[Options.primary_advanced])
         self._add_ui_affordance(self.aff.click_toggle, 
                                 name="fx3",
                                 points=(1799, 199 ), 
-                                require=[Options.primary_advanced])
+                                required=[Options.primary_advanced])
         self._add_ui_affordance(self.aff.click_toggle, 
                                 name="tempo_sync_settings_run_cycenv",
                                 points=(1411, 617 ),
-                                require=[Options.primary_advanced, Options.stg_cycenv, Options.run_mode])
+                                required=[Options.primary_advanced, Options.stg_cycenv, Options.run_mode])
         self._add_ui_affordance(self.aff.click_toggle, 
                                 name="tempo_sync_settings_loop_cycenv",
                                 points=(1412, 612 ),
-                                require=[Options.primary_advanced, Options.stg_cycenv, Options.loop_mode])
+                                required=[Options.primary_advanced, Options.stg_cycenv, Options.loop_mode])
         self._add_ui_affordance(self.aff.click_toggle, 
                                 name="vibrato_settings_wheels",
                                 points=(239 , 1005),
-                                require=[Options.primary_advanced, Options.stg_wheels])
+                                required=[Options.primary_advanced, Options.stg_wheels])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="legato_settings_mono_voices",
                                 points=(510 , 689 ),
-                                require=[Options.primary_advanced, Options.stg_voices, Options.mono_mode])
+                                required=[Options.primary_advanced, Options.stg_voices, Options.mono_mode])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="legato_settings_uni_voices",
                                 points=(510 , 636 ),
-                                require=[Options.primary_advanced, Options.stg_voices, Options.uni_mode])
+                                required=[Options.primary_advanced, Options.stg_voices, Options.uni_mode])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="c_chord_selection",
                                 points=(92  , 651 ),
-                                require=[Options.primary_advanced, Options.chord_tab])
+                                required=[Options.primary_advanced, Options.chord_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="c_shp_chord_selection",
                                 points=(101 , 624 ),
-                                require=[Options.primary_advanced, Options.chord_tab])
+                                required=[Options.primary_advanced, Options.chord_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="d_chord_selection",
                                 points=(113 , 648 ),
-                                require=[Options.primary_advanced, Options.chord_tab])
+                                required=[Options.primary_advanced, Options.chord_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="d_shp_chord_selection",
                                 points=(125 , 623 ),
-                                require=[Options.primary_advanced, Options.chord_tab])
+                                required=[Options.primary_advanced, Options.chord_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="e_chord_selection",
                                 points=(140 , 649 ),
-                                require=[Options.primary_advanced, Options.chord_tab])
+                                required=[Options.primary_advanced, Options.chord_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="f_chord_selection",
                                 points=(163 , 648 ),
-                                require=[Options.primary_advanced, Options.chord_tab])
+                                required=[Options.primary_advanced, Options.chord_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="f_shp_chord_selection",
                                 points=(173 , 624 ),
-                                require=[Options.primary_advanced, Options.chord_tab])
+                                required=[Options.primary_advanced, Options.chord_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="g_chord_selection",
                                 points=(186 , 648 ),
-                                require=[Options.primary_advanced, Options.chord_tab])
+                                required=[Options.primary_advanced, Options.chord_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="g_shp_chord_selection",
                                 points=(199 , 625 ),
-                                require=[Options.primary_advanced, Options.chord_tab])
+                                required=[Options.primary_advanced, Options.chord_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="a_chord_selection",
                                 points=(211 , 648 ),
-                                require=[Options.primary_advanced, Options.chord_tab])
+                                required=[Options.primary_advanced, Options.chord_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="a_shp_chord_selection",
                                 points=(220 , 623 ),
-                                require=[Options.primary_advanced, Options.chord_tab])
+                                required=[Options.primary_advanced, Options.chord_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="b_chord_selection",
                                 points=(235 , 648 ),
-                                require=[Options.primary_advanced, Options.chord_tab])
+                                required=[Options.primary_advanced, Options.chord_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="c_scale_selection",
                                 points=(97  , 675 ),
-                                require=[Options.primary_advanced, Options.scale_tab])
+                                required=[Options.primary_advanced, Options.scale_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="c_shp_scale_selection",
                                 points=(109 , 649 ),
-                                require=[Options.primary_advanced, Options.scale_tab])
+                                required=[Options.primary_advanced, Options.scale_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="d_scale_selection",
                                 points=(119 , 674 ),
-                                require=[Options.primary_advanced, Options.scale_tab])
+                                required=[Options.primary_advanced, Options.scale_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="d_shp_scale_selection",
                                 points=(132 , 646 ),
-                                require=[Options.primary_advanced, Options.scale_tab])
+                                required=[Options.primary_advanced, Options.scale_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="e_scale_selection",
                                 points=(141 , 673 ),
-                                require=[Options.primary_advanced, Options.scale_tab])
+                                required=[Options.primary_advanced, Options.scale_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="f_scale_selection",
                                 points=(160 , 675 ),
-                                require=[Options.primary_advanced, Options.scale_tab])
+                                required=[Options.primary_advanced, Options.scale_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="f_shp_scale_selection",
                                 points=(174 , 647 ),
-                                require=[Options.primary_advanced, Options.scale_tab])
+                                required=[Options.primary_advanced, Options.scale_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="g_scale_selection",
                                 points=(183 , 673 ),
-                                require=[Options.primary_advanced, Options.scale_tab])
+                                required=[Options.primary_advanced, Options.scale_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="g_shp_scale_selection",
                                 points=(195 , 648 ),
-                                require=[Options.primary_advanced, Options.scale_tab])
+                                required=[Options.primary_advanced, Options.scale_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="a_scale_selection",
                                 points=(202 , 673 ),
-                                require=[Options.primary_advanced, Options.scale_tab])
+                                required=[Options.primary_advanced, Options.scale_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="a_shp_scale_selection",
                                 points=(216 , 649 ),
-                                require=[Options.primary_advanced, Options.scale_tab])
+                                required=[Options.primary_advanced, Options.scale_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="b_scale_selection",
                                 points=(225 , 674 ),
-                                require=[Options.primary_advanced, Options.scale_tab])
+                                required=[Options.primary_advanced, Options.scale_tab])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="chord",
                                 points=(98  , 773 ),
-                                require=[Options.primary_advanced])
+                                required=[Options.primary_advanced])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="rand_oct_arp",
                                 points=(1399, 266 ),
-                                require=[Options.primary_sequencer, Options.seq_arp_arp])
+                                required=[Options.primary_sequencer, Options.seq_arp_arp])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="row_1_auto_smooth_seq",
                                 points=(87  , 1043),
-                                require=[Options.primary_sequencer])
+                                required=[Options.primary_sequencer])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="row_2_auto_smooth_seq",
                                 points=(88  , 1097),
-                                require=[Options.primary_sequencer])
+                                required=[Options.primary_sequencer])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="row_3_auto_smooth_seq",
                                 points=(89  , 1149),
-                                require=[Options.primary_sequencer])
+                                required=[Options.primary_sequencer])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="row_4_auto_smooth_seq",
                                 points=(88  , 1203),
-                                require=[Options.primary_sequencer])
+                                required=[Options.primary_sequencer])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="autoplay_seq",
                                 points=(637 , 264 ),
-                                require=[Options.primary_sequencer, Options.seq_arp_seq])
+                                required=[Options.primary_sequencer, Options.seq_arp_seq])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="overdub_seq",
                                 points=(723 , 263 ),
-                                require=[Options.primary_sequencer, Options.seq_arp_seq])
+                                required=[Options.primary_sequencer, Options.seq_arp_seq])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="pause_play_seq",
                                 points=(808 , 259 ),
-                                require=[Options.primary_sequencer, Options.seq_arp_seq])
+                                required=[Options.primary_sequencer, Options.seq_arp_seq])
         self._add_ui_affordance(self.aff.click_toggle,
                                 name="record_seq",
                                 points=(894 , 262 ),
-                                require=[Options.primary_sequencer, Options.seq_arp_seq])
+                                required=[Options.primary_sequencer, Options.seq_arp_seq])
         self._add_ui_affordance(self.aff.click_hold_toggle,
                                 name="repeat_arp_seq",
                                 points=(1257, 260 ),
-                                require=[Options.primary_sequencer, Options.seq_arp_arp])
+                                required=[Options.primary_sequencer, Options.seq_arp_arp])
         self._add_ui_affordance(self.aff.click_hold_toggle,
                                 name="ratchet_arp_seq",
                                 points=(1322, 261 ),
-                                require=[Options.primary_sequencer, Options.seq_arp_arp])
+                                required=[Options.primary_sequencer, Options.seq_arp_arp])
         self._add_ui_affordance(self.aff.click_hold_toggle,
                                 name="mutate_arp_seq",
                                 points=(1474, 261 ),
-                                require=[Options.primary_sequencer, Options.seq_arp_arp])
+                                required=[Options.primary_sequencer, Options.seq_arp_arp])
         self._add_ui_affordance(self.aff.click_refresh,
                                 name="roll_dice_seq",
                                 points=(1695, 260 ),
-                                require=[Options.primary_sequencer])
+                                required=[Options.primary_sequencer])
         self._add_ui_affordance(self.aff.click_refresh,
                                 "reset_lfo_shaper",
                                 (466 , 999 ),
-                                (Options.primary_advanced, Options.secondary_shaper,), (Options.tab_lfos,))
+                                [([Options.primary_advanced, Options.secondary_shaper], [Options.tab_lfos])])
         self._add_ui_affordance(self.aff.click_refresh,
                                 name="incr_time_div_seq",
                                 points=(1830, 240 ),
-                                require=[Options.primary_sequencer])
+                                required=[Options.primary_sequencer])
         self._add_ui_affordance(self.aff.click_refresh,
                                 name="decr_time_div_seq",
                                 points=(1828, 296 ),
-                                require=[Options.primary_sequencer])
+                                required=[Options.primary_sequencer])
         self._add_ui_affordance(self.aff.click_cycle, 
                                 name="rate_type_lfo1", 
                                 selections=lfo_rate_types, 
                                 points=(771 , 710 ), 
-                                require=[Options.primary_advanced])
+                                required=[Options.primary_advanced])
         self._add_ui_affordance(self.aff.click_cycle, 
                                 name="rate_type_lfo2", 
                                 selections=lfo_rate_types,
                                 points=(1034, 710 ), 
-                                require=[Options.primary_advanced])
+                                required=[Options.primary_advanced])
         self._add_ui_affordance(self.aff.click_cycle, 
                                 name="rise_curve_settings_env_cycenv", 
                                 selections=rising_curve_types,
                                 points=(1350, 665 ), 
-                                require=[Options.primary_advanced, Options.stg_cycenv])
+                                required=[Options.primary_advanced, Options.stg_cycenv])
         self._add_ui_affordance(self.aff.click_cycle,
                                 name="fall_curve_settings_env_cycenv", 
                                 selections=falling_curve_type,
                                 points=(1353, 701 ), 
-                                require=[Options.primary_advanced, Options.stg_cycenv])
+                                required=[Options.primary_advanced, Options.stg_cycenv])
         self._add_ui_affordance(self.aff.click_dropdown,
                                 osc_1_mode,
                                 (476 , 200 ),
@@ -520,7 +510,7 @@ class MiniFreak:
                                     name=f"fx{i}_type",
                                     selections=fx_types_neither,
                                     points=(1524, 241 ),
-                                    require=[
+                                    required=[
                                         [
                                             Options.primary_advanced, 
                                             Options[f"fx_{i}"], 
@@ -551,7 +541,7 @@ class MiniFreak:
                                     name=f"fx{i}_type",
                                     selections=fx_types_delay,
                                     points=(1524, 241 ),
-                                    require=[
+                                    required=[
                                         [
                                             Options.primary_advanced, 
                                             Options[f"fx_{i}"],
@@ -574,7 +564,7 @@ class MiniFreak:
                                     name=f"fx{i}_type",
                                     selections=fx_types_reverb,
                                     points=(1524, 241 ),
-                                    require=[
+                                    required=[
                                         [
                                             Options.primary_advanced, 
                                             Options[f"fx_{i}"], 
@@ -598,7 +588,7 @@ class MiniFreak:
                                     name=f"chorus_preset_fx_{i}", 
                                     selections=chorus_presets,
                                     points=(1526, 429 ),
-                                    require=[
+                                    required=[
                                         Options.primary_advanced, 
                                         Options[f"fx_{i}"],
                                         Options[f"typ_fx_{i}_chorus"],
@@ -607,7 +597,7 @@ class MiniFreak:
                                     name=f"phaser_preset_fx_{i}", 
                                     selections=phaser_preset,
                                     points=(1526, 429 ),
-                                    require=[
+                                    required=[
                                         Options.primary_advanced, 
                                         Options[f"fx_{i}"],
                                         Options[f"typ_fx_{i}_phaser"],
@@ -616,7 +606,7 @@ class MiniFreak:
                                     name=f"flanger_preset_fx_{i}", 
                                     selections=flanger_preset,
                                     points=(1526, 429 ),
-                                    require=[
+                                    required=[
                                         Options.primary_advanced, 
                                         Options[f"fx_{i}"],
                                         Options[f"typ_fx_{i}_flanger"],
@@ -625,7 +615,7 @@ class MiniFreak:
                                     name=f"distortion_preset_fx_{i}", 
                                     selections=distortion_preset,
                                     points=(1526, 429 ),
-                                    require=[
+                                    required=[
                                         Options.primary_advanced, 
                                         Options[f"fx_{i}"],
                                         Options[f"typ_fx_{i}_distortion"],
@@ -634,7 +624,7 @@ class MiniFreak:
                                     name=f"_3_bands_eq_preset_fx_{i}", 
                                     selections=options._3_bands_eq_preset,
                                     points=(1526, 429 ),
-                                    require=[
+                                    required=[
                                         Options.primary_advanced, 
                                         Options[f"fx_{i}"],
                                         Options[f"typ_fx_{i}__3_bands_eq"],
@@ -643,7 +633,7 @@ class MiniFreak:
                                     name=f"multi_comp_preset_fx_{i}", 
                                     selections=multi_comp_preset,
                                     points=(1526, 429 ),
-                                    require=[
+                                    required=[
                                         Options.primary_advanced, 
                                         Options[f"fx_{i}"],
                                         Options[f"typ_fx_{i}_multi_comp"],
@@ -652,7 +642,7 @@ class MiniFreak:
                                     name=f"superunison_preset_fx_{i}", 
                                     selections=superunison_preset,
                                     points=(1526, 429 ),
-                                    require=[
+                                    required=[
                                         Options.primary_advanced, 
                                         Options[f"fx_{i}"],
                                         Options[f"typ_fx_{i}_superunison"],
@@ -681,12 +671,12 @@ class MiniFreak:
                                 name="glide_mode_settings_mono_voices",
                                 selections=glide_type,
                                 points=(478 , 639 ),
-                                require=[Options.primary_advanced, Options.stg_voices, Options.mono_mode])
+                                required=[Options.primary_advanced, Options.stg_voices, Options.mono_mode])
         self._add_ui_affordance(self.aff.click_dropdown,
                                 name="glide_mode_settings_uni_voices",
                                 selections=glide_type,
                                 points=(479 , 616 ),
-                                require=[Options.primary_advanced, Options.stg_voices, Options.uni_mode])
+                                required=[Options.primary_advanced, Options.stg_voices, Options.uni_mode])
         self._add_ui_affordance(self.aff.click_dropdown,
                                 uni_voice_mode
                                 (478 , 662 ),
@@ -695,42 +685,40 @@ class MiniFreak:
                                 name="glide_mode_settings_poly_voices",
                                 selections=glide_type,
                                 points=(481 , 627 ),
-                                require=[Options.primary_advanced, Options.stg_voices], 
+                                required=[Options.primary_advanced, Options.stg_voices], 
                                 branch=[Options.polypara_mode])
         self._add_ui_affordance(self.aff.click_dropdown,
                                 voice_allocation_modes,
                                 (480 , 664 ),
-                                [Options.primary_advanced, Options.stg_voices], 
-                                [Options.polypara_mode])
+                                [([Options.primary_advanced, Options.stg_voices], [Options.polypara_mode])])
         self._add_ui_affordance(self.aff.click_dropdown,
                                 note_steal_modes,
                                 (474 , 700 ),
-                                [Options.primary_advanced, Options.stg_voices], 
-                                [Options.polypara_mode])
+                                [([Options.primary_advanced, Options.stg_voices], [Options.polypara_mode])])
         self._add_ui_affordance(self.aff.click_dropdown,
                                 voice_mode
                                 (461 , 586 ),
-                                [[Options.primary_advanced, Options.stg_voices]])
+                                [Options.primary_advanced, Options.stg_voices])
         self._add_ui_affordance(self.aff.click_dropdown,
                                 name="retrigger_settings_env_cycenv",
                                 selections=cycenv_retrigger_mode,
                                 points=(1351, 626 ),
-                                require=[Options.primary_advanced, Options.stg_cycenv, Options.env_mode])
+                                required=[Options.primary_advanced, Options.stg_cycenv, Options.env_mode])
         self._add_ui_affordance(self.aff.click_dropdown,
                                 name="stage_order_settings_run_cycenv",
                                 selections=stage_order,
                                 points=(1350, 646 ),
-                                require=[Options.primary_advanced, Options.stg_cycenv, Options.run_mode])
+                                required=[Options.primary_advanced, Options.stg_cycenv, Options.run_mode])
         self._add_ui_affordance(self.aff.click_dropdown,
                                 name="retrigger_settings_loop_cycenv",
                                 selections=cycenv_retrigger_mode,
                                 points=(1352, 637 ),
-                                require=[Options.primary_advanced, Options.stg_cycenv, Options.loop_mode])
+                                required=[Options.primary_advanced, Options.stg_cycenv, Options.loop_mode])
         self._add_ui_affordance(self.aff.click_dropdown,
                                 name="stage_order_settings_loop_cycenv",
                                 selections=stage_order,
                                 points=(1346, 659 ),
-                                require=[Options.primary_advanced, Options.stg_cycenv, Options.loop_mode])
+                                required=[Options.primary_advanced, Options.stg_cycenv, Options.loop_mode])
         self._add_ui_affordance(self.aff.click_dropdown,
                                 cycenv_mode,
                                 (1327, 586 ),
@@ -739,20 +727,17 @@ class MiniFreak:
                                 name="attack_curve_settings_envelope",
                                 selections=attack_curve_type,
                                 points=(1631, 619 ),
-                                require=[Options.primary_advanced, Options.stg_env], 
-                                branch=[Options.mde_env_retrigger])
+                                required=[([Options.primary_advanced, Options.stg_env], [Options.mde_env_retrigger])])
         self._add_ui_affordance(self.aff.click_dropdown,
                                 name="decay_curve_settings_envelope",
                                 selections=falling_curve_type,
                                 points=(1625, 647 ),
-                                require=[Options.primary_advanced, Options.stg_env], 
-                                branch=[Options.mde_env_retrigger])
+                                required=[([Options.primary_advanced, Options.stg_env], [Options.mde_env_retrigger])])
         self._add_ui_affordance(self.aff.click_dropdown,
                                 name="release_curve_settings_envelope",
                                 selections=falling_curve_type,
                                 points=(1626, 678 ),
-                                require=[Options.primary_advanced, Options.stg_env], 
-                                branch=[Options.mde_env_retrigger])
+                                required=[([Options.primary_advanced, Options.stg_env], [Options.mde_env_retrigger])])
         self._add_ui_affordance(self.aff.click_dropdown,
                                 env_retrigger_mode,
                                 (1653, 586 ),
@@ -768,96 +753,95 @@ class MiniFreak:
         self._add_ui_affordance(self.aff.click_dropdown,
                                 rate_lfo_shaper
                                 (549 , 1085),
-                                [Options.primary_advanced, Options.secondary_shaper], 
-                                [Options.tab_lfos])
+                                [([Options.primary_advanced, Options.secondary_shaper], [Options.tab_lfos])])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="rise_curve_settings_run_cycenv",
                                 points=(1349, 680 ),
-                                require=[Options.primary_advanced, Options.stg_cycenv, Options.run_mode])
+                                required=[Options.primary_advanced, Options.stg_cycenv, Options.run_mode])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="rise_curve_settings_loop_cycenv",
                                 points=(1349, 680 ),
-                                require=[Options.primary_advanced, Options.stg_cycenv, Options.loop_mode])
+                                required=[Options.primary_advanced, Options.stg_cycenv, Options.loop_mode])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="fall_curve_settings_run_cycenv",
                                 points=(1348, 707 ),
-                                require=[Options.primary_advanced, Options.stg_cycenv, Options.run_mode])
+                                required=[Options.primary_advanced, Options.stg_cycenv, Options.run_mode])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="rise_curve_settings_loop_cycenv",
                                 points=(1347, 686 ),
-                                require=[Options.primary_advanced, Options.stg_cycenv, Options.loop_mode])
+                                required=[Options.primary_advanced, Options.stg_cycenv, Options.loop_mode])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="fall_curve_settings_loop_cycenv",
                                 points=(1346, 715 ),
-                                require=[Options.primary_advanced, Options.stg_cycenv, Options.loop_mode])
+                                required=[Options.primary_advanced, Options.stg_cycenv, Options.loop_mode])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="vel_vca_settings_envelope",
                                 points=(1836, 620 ),
-                                require=[Options.primary_advanced, Options.stg_env])
+                                required=[Options.primary_advanced, Options.stg_env])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="vel_vcf_settings_envelope",
                                 points=(1836, 650 ),
-                                require=[Options.primary_advanced, Options.stg_env])
+                                required=[Options.primary_advanced, Options.stg_env])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="vel_env_settings_envelope",
                                 points=(1836, 677 ),
-                                require=[Options.primary_advanced, Options.stg_env])
+                                required=[Options.primary_advanced, Options.stg_env])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="vel_time_settings_envelope",
                                 points=(1835, 708 ),
-                                require=[Options.primary_advanced, Options.stg_env])
+                                required=[Options.primary_advanced, Options.stg_env])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="vibrato_rate_settings_wheels",
                                 points=(210 , 1047),
-                                require=[Options.primary_advanced, Options.stg_wheels])
+                                required=[Options.primary_advanced, Options.stg_wheels])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="vibrato_depth_settings_wheels",
                                 points=(209 , 1091),
-                                require=[Options.primary_advanced, Options.stg_wheels])
+                                required=[Options.primary_advanced, Options.stg_wheels])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="bend_range_settings_wheels",
                                 points=(209 , 1134),
-                                require=[Options.primary_advanced, Options.stg_wheels])
+                                required=[Options.primary_advanced, Options.stg_wheels])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="uni_count_settings_uni_voice",
                                 points=(476 , 688 ),
-                                require=[Options.primary_advanced, Options.stg_voices, Options.uni_mode])
+                                required=[Options.primary_advanced, Options.stg_voices, Options.uni_mode])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="uni_spread_settings_uni_voice",
                                 points=(479 , 712 ),
-                                require=[Options.primary_advanced, Options.stg_voices, Options.uni_mode])
+                                required=[Options.primary_advanced, Options.stg_voices, Options.uni_mode])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="amount_1_macro_1",
                                 points=(549 , 1032),
-                                require=[Options.primary_advanced, Options.secondary_macro_matrix])
+                                required=[Options.primary_advanced, Options.secondary_macro_matrix])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="amount_2_macro_1",
                                 points=(551 , 1089),
-                                require=[Options.primary_advanced, Options.secondary_macro_matrix])
+                                required=[Options.primary_advanced, Options.secondary_macro_matrix])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="amount_3_macro_1",
                                 points=(552 , 1151),
-                                require=[Options.primary_advanced, Options.secondary_macro_matrix])
+                                required=[Options.primary_advanced, Options.secondary_macro_matrix])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="amount_4_macro_1",
                                 points=(552 , 1210),
-                                require=[Options.primary_advanced, Options.secondary_macro_matrix])
+                                required=[Options.primary_advanced, Options.secondary_macro_matrix])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="amount_1_macro_2",
                                 points=(843 , 1031),
-                                require=[Options.primary_advanced, Options.secondary_macro_matrix])
+                                required=[Options.primary_advanced, Options.secondary_macro_matrix])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="amount_2_macro_2",
                                 points=(841 , 1090),
-                                require=[Options.primary_advanced, Options.secondary_macro_matrix])
+                                required=[Options.primary_advanced, Options.secondary_macro_matrix])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="amount_3_macro_2",
                                 points=(842 , 1153),
-                                require=[Options.primary_advanced, Options.secondary_macro_matrix])
+                                required=[Options.primary_advanced, Options.secondary_macro_matrix])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="amount_4_macro_2",
                                 points=(842 , 1211),
-                                require=[Options.primary_advanced, Options.secondary_macro_matrix])
+                                required=[Options.primary_advanced, Options.secondary_macro_matrix])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="brightness",
                                 points=(1389, 1283))
@@ -867,19 +851,19 @@ class MiniFreak:
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 "grid_length_lfo_shaper",
                                 (556 , 1042),
-                                (Options.primary_advanced, Options.secondary_shaper,), (Options.tab_lfos))
+                                [([Options.primary_advanced, Options.secondary_shaper], [Options.tab_lfos])])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 "amplitude_lfo_shaper",
                                 (563 , 1191),
-                                (Options.primary_advanced, Options.secondary_shaper,), (Options.tab_lfos))
+                                [([Options.primary_advanced, Options.secondary_shaper], [Options.tab_lfos])])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="swing_seq",
                                 points=(1782, 266 ),
-                                require=[Options.primary_sequencer, Options.seq_arp_not_off])
+                                required=[Options.primary_sequencer, Options.seq_arp_not_off])
         self._add_ui_affordance(self.aff.click_rel_slider,
                                 name="tempo_seq",
                                 points=(1840, 192 ),
-                                require=[Options.primary_sequencer, Options.seq_arp_not_off])
+                                required=[Options.primary_sequencer, Options.seq_arp_not_off])
         for i in range(13):
             x = 1088 + i * ((1764 - 1088) / 12)
             for j in range(7):
@@ -887,7 +871,7 @@ class MiniFreak:
                 self._add_ui_affordance(self.aff.click_rel_slider,
                                         name=f"mod_{i}_{j}_matrix",
                                         points=(x, y),
-                                        require=[Options.primary_advanced, Options.secondary_macro_matrix])
+                                        required=[Options.primary_advanced, Options.secondary_macro_matrix])
         # LFO_Shaper_Canvas
         # self._add_ui_affordance(self.aff.click_rel_slider,
         #                     "border_left",
@@ -930,7 +914,7 @@ class MiniFreak:
             aff: Def_Afford, 
             selections: Union[Enum, List[Enum], None] = None, 
             points: Union[List[Tuple[Union[int, float], Union[int, float]]], Tuple[Union[int, float], Union[int, float]], None] = None,
-            require: Union[Tuple[List[Options], List[Options]], List[Options], List[List[Options]], List[Tuple[List[Options], List[Options]]]] = [], 
+            required: Union[Tuple[List[Options], List[Options]], List[Options], List[List[Options]], List[Tuple[List[Options], List[Options]]]] = [], 
             name: Optional[str] = None,
             _processed: bool = False,
     ):
@@ -947,8 +931,8 @@ class MiniFreak:
             else:
                 points = [self._norm(x, y) for (x, y) in points]
         if not _processed:
-            if isinstance(require, tuple) or (require and isinstance(require[0], Options)):
-                require = [require]
+            if isinstance(required, tuple) or (required and isinstance(required[0], Options)):
+                required = [required]
         
         if selections is None and (
             aff is self.aff.click_select or \
@@ -966,7 +950,7 @@ class MiniFreak:
         if not _processed and not hasattr(self, f"_{aff.name}"):
             setattr(self, f"_{aff.name}", defaultdict(lambda: defaultdict(dict)))
 
-        for i, r in enumerate(require):
+        for i, r in enumerate(required):
             if isinstance(r, tuple):
                 required, branch = r
             else:
@@ -981,7 +965,7 @@ class MiniFreak:
                         name=f"{name}_{leaf.name}",
                         selections=selections,
                         points=points,
-                        require=(require[:i] + [r_new] + require[i+1:]),
+                        required=(required[:i] + [r_new] + required[i+1:]),
                         _processed=True,
                     )
                 return
@@ -990,12 +974,12 @@ class MiniFreak:
 
         if   aff is self.aff.click_select:
             for selection, point in zip(selections, points):
-                records[name][selection] = {"point": point, "required": require}
+                records[name][selection] = {"point": point, "required": required}
         elif aff is self.aff.click_toggle or aff is self.aff.click_hold_toggle or aff is self.aff.click_refresh or aff is self.aff.click_rel_slider:
-            records[name][point[0]] = require
+            records[name][point[0]] = required
         elif aff is self.aff.click_cycle or aff is self.aff.click_dropdown:
             for selection in selections:
-                records[name][selection] = {"point": points[0], "required": require}
+                records[name][selection] = {"point": points[0], "required": required}
         
         self.n_affordances += 1
 
@@ -1004,10 +988,11 @@ class MiniFreak:
         for aff in self.aff:
             affordance_type = "_".join(map(lambda s: s.capitalize(), aff.name.split("_")))
             records = getattr(self, f"_{aff.name}")
-            affordance_types[affordance_type] = Enum(affordance_type, tuple(records.keys()))
-            for afford in affordance_types[affordance_type]:
-                elt = records[afford.name]
-                self._spec[afford] = elt
+            affordances = Enum(affordance_type, tuple(records.keys()))
+            affordance_types[affordance_type] = affordances
+            for afford in affordances:
+                spec = records[afford.name]
+                self._spec[afford] = spec
                 if   aff is self.aff.midi_disc_toggle or aff is self.aff.midi_cont_toggle:
                     self._state[afford] = Toggle_State.Off
                     self._states[afford] = tuple(Toggle_State)
@@ -1015,7 +1000,7 @@ class MiniFreak:
                     self._state[afford] = 0
                     self._states[afford] = tuple(range(128))
                 elif aff is self.aff.click_select:
-                    self._states[afford] = tuple(elt.keys())
+                    self._states[afford] = tuple(spec.keys())
                     self._state[afford] = self._states[afford][0]
                 elif aff is self.aff.click_toggle:
                     self._state[afford] = Toggle_State.Off
@@ -1027,15 +1012,30 @@ class MiniFreak:
                     self._state[afford] = None
                     self._states[afford] = (None,)
                 elif aff is self.aff.click_cycle or aff is self.aff.click_dropdown:
-                    self._states[afford] = tuple(elt.keys())
+                    self._states[afford] = tuple(spec.keys())
                     self._state[afford] = self._states[afford][0]
                 elif aff is self.aff.click_rel_slider: # TODO: revisit
                     self._state[afford] = None
                     self._states[afford] = (None,)
 
-        self._affordance_types = Enum('Affordance_Types', affordance_types)
-        self._affordances = tuple((a for at in self._affordance_types for a in at))
-    
+        self._affordance_types = Enum('Affordance_Types', {e.name: e for e in affordance_types})
+        self._affordances = {a.name: a for at in self._affordance_types for a in at.value}
+
+        for afford in affordance_types[affordance_type]:
+            elt = self._spec[afford]
+            for afford in affordance_types[affordance_type]:
+                if   aff is self.aff.click_select or aff is self.aff.click_cycle or aff is self.aff.click_dropdown:
+                    for s, d in elt.items():
+                        for opts in d["required"]:
+                            for opt in opts:
+                                assert (opt.value[0] in self._affordances), f"invalid requirement specification: {afford}: {s}: {d['required']}"
+                elif aff is self.aff.click_toggle or aff is self.aff.click_hold_toggle or aff is self.aff.click_refresh or aff is self.aff.click_rel_slider:
+                    for point, required in elt.items():
+                        for opts in required:
+                            for opt in opts:
+                                assert (opt.value[0] in self._affordances), f"invalid requirement specification: {afford}: {point}: {d['required']}"
+
+
     @property
     def state(self):
         return self._state
@@ -1109,16 +1109,28 @@ class MiniFreak:
             pass
 
     def _satisfied(self, req):
-        pass
+        return any(
+            req,
+            lambda r: all(
+                r, 
+                lambda opt: self.state[self._affordances[opt.value[0]]] in opt.value[1]
+            )
+        )
 
     def _click(self, point):
-        pass
+        rect = self.app.window("MiniFreak").rectangle()
+        width, height = rect.right - rect.left, rect.bottom - rect.top
+        width_frac, height_frac = point
+        mouse.click(coords=(
+            rect.left + width * width_frac, 
+            rect.top + height * height_frac
+        ))
 
     def _kbd_down(self):
-        pass
+        keyboard.send_keys("{VK_DOWN}")
 
     def _kbd_enter(self):
-        pass
+        keyboard.send_keys("{ENTER}")
 
     def _send(self, ty, **kwargs):
         if isinstance(self._outport, mido.ports.BaseOutput) and not self._outport.closed:
