@@ -56,17 +56,17 @@ class voice_mode(Enum):
     Para = auto()
 
 class chord_octaves(Enum):
-    __minus__5 = auto()
-    __minus__4 = auto()
-    __minus__3 = auto()
-    __minus__2 = auto()
-    __minus__1 = auto()
+    _minus__5 = auto()
+    _minus__4 = auto()
+    _minus__3 = auto()
+    _minus__2 = auto()
+    _minus__1 = auto()
     _0 = auto()
-    __plus__1 = auto()
-    __plus__2 = auto()
-    __plus__3 = auto()
-    __plus__4 = auto()
-    __plus__5 = auto()
+    _plus__1 = auto()
+    _plus__2 = auto()
+    _plus__3 = auto()
+    _plus__4 = auto()
+    _plus__5 = auto()
 
 class sequencer_arpeggiator_modes(Enum):
     Off = auto()
@@ -165,25 +165,25 @@ class routing_slot_seq(Enum):
     mod_src_4 = auto()
 
 class osc_1_mode(Enum):
-    Basic_Waves = auto()
-    SuperWave = auto()
-    Harmo = auto()
-    KarplusStr = auto()
-    VAnalog = auto()
-    Waveshaper = auto()
-    Two_Op__period__FM = auto()
-    Formant = auto()
-    Speech = auto()
-    Modal = auto()
-    Noise = auto()
-    Bass = auto()
-    SawX = auto()
-    Harm = auto()
-    Audio_In = auto()
-    Wavetable = auto()
+    Basic_Waves = 1
+    SuperWave = 2
+    Harmo = 3
+    KarplusStr = 4
+    VAnalog = 5
+    Waveshaper = 6
+    Two_Op__period__FM = 7
+    Formant = 8
+    Speech = 9
+    Modal = 10
+    Noise = 11
+    Bass = 12
+    SawX = 13
+    Harm = 14
+    Audio_In = 15
+    Wavetable = 16
 
-class osc_2_mode(osc_1_mode):
-    paraphony = auto()
+class osc_2_mode(Enum):
+    paraphony = 17
 
 class filter_type(Enum):
     LP = auto()
@@ -207,17 +207,6 @@ class fx_types_reverb(Enum):
 class fx_types_delay(Enum):
     Delay = 11
 
-class fx_types_if_reverb(fx_types_neither, fx_types_delay):
-    pass
-
-
-class fx_types_if_delay(fx_types_neither, fx_types_reverb):
-    pass
-
-
-class fx_types_both(fx_types_neither, fx_types_reverb, fx_types_delay):
-    pass
-
 class lfo_shapes(Enum):
     up = auto()
     down = auto()
@@ -237,22 +226,22 @@ class n_bars(Enum):
     _4_Bar = auto()
 
 class cycenv_retrigger_mode(Enum):
-    Poly_Kbd = auto()
-    Mono_Kbd = auto()
-    Legato_Kbd = auto()
+    Poly_Kbd = 1
+    Mono_Kbd = 2
+    Legato_Kbd = 3
 
 
-class lfo_retrigger_modes(cycenv_retrigger_mode):
-    Free = auto()
-    One = auto()
-    CycEnv = auto()
-    Seq_Start = auto()
+class lfo_retrigger_mode(Enum):
+    Free = 4
+    One = 5
+    CycEnv = 6
+    Seq_Start = 7
 
-class lfo1_retrigger_mode(lfo_retrigger_modes):
-    LFO2 = auto()
+class lfo1_retrigger_mode(Enum):
+    LFO2 = 8
 
-class lfo2_retrigger_mode(lfo_retrigger_modes):
-    LFO1 = auto()
+class lfo2_retrigger_mode(Enum):
+    LFO1 = 9
 
 class env_retrigger_mode(Enum):
     Env_Reset = auto()
@@ -400,8 +389,8 @@ class Options(Enum):
     fx_2 = ("fx_tabs", frozenset((fx_tabs.FX_2,)))
     fx_3 = ("fx_tabs", frozenset((fx_tabs.FX_3,)))
     tab_chord_scale = ("chord_scale_tabs", frozenset(chord_scale_tabs))
-    chord_tab = ("chord_scale_tabs", frozenset(chord_scale_tabs.Chord))
-    scale_tab = ("chord_scale_tabs", frozenset(chord_scale_tabs.Scale))
+    chord_tab = ("chord_scale_tabs", frozenset((chord_scale_tabs.Chord,)))
+    scale_tab = ("chord_scale_tabs", frozenset((chord_scale_tabs.Scale,)))
     pnl_voices = ("voices_panel", frozenset(panel))
     stg_voices = ("voices_panel", frozenset((panel.settings,)))
     pnl_cycenv = ("cycenv_panel", frozenset(panel))
@@ -436,7 +425,7 @@ class Options(Enum):
     mde_routing_adv = ("routing_slot", frozenset(routing_slot_adv))
     mde_routing_seq = ("routing_slot", frozenset(routing_slot_seq))
     typ_osc_1 = ("osc_1_modes", frozenset(osc_1_mode))
-    typ_osc_2 = ("osc_2_modes", frozenset(osc_2_mode))
+    typ_osc_2 = ("osc_2_modes", frozenset(set(osc_2_mode) | set(osc_1_mode)))
     typ_filter = ("filter_type", frozenset(filter_type))
     typ_fx_1_chorus = ("fx1_type", frozenset((fx_types_neither.Chorus,)))
     typ_fx_1_phaser = ("fx1_type", frozenset((fx_types_neither.Phaser,)))
